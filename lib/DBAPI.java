@@ -77,5 +77,59 @@ public class DBAPI {
         }
         return true;
     }
+    
+    public void viewObs(String uname)
+    {
+ 	   //query for displaying observations based on the pid(uname)
+    }
+    
+    
+    public void viewAlerts(String uname)
+    {
+    	//query for displaying observations based on the pid(uname)
+    	
+    }
+    
+    public String authLogin(String uname, String password) throws SQLException
+    {
+    	   	
+    	String PATIENT_ID="",HP_ID="",type="";
+    	
+    	String query_patient="SELECT PATIENT_ID from PATIENT_INFO WHERE PATIENT_ID='"+uname+"' AND PASSWORD='"+password+"'";
+		String query_hp="SELECT HP_ID from HP_INFO WHERE HP_ID='"+uname+"' AND PASSWORD='"+password+"'";
+
+    	
+    	Statement stmt = conn.createStatement();
+    	try {
+    	    
+    	     ResultSet rs_p = stmt.executeQuery(query_patient);
+    	     if (!rs_p.next()) 
+    	     {
+    	    ResultSet rs_hp = stmt.executeQuery(query_hp);
+    	    	if(!rs_hp.next())
+    	    	{
+    	    		type="Enter valid username and password.";
+    	    	}
+    	    	
+    	    	else
+    	    	{
+    	    		type="HP";
+    	    	}
+    	     }
+    	     
+    	     else
+    	    	 	type="patient";
+    	     
+    	     
+    	 } catch (SQLException e ) {
+    	     
+    	 }
+    	
+    	return type;
+    }
+    	
+    	
+   
+    	
 }
 
