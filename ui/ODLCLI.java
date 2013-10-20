@@ -11,7 +11,7 @@ import lib.*;
 public class ODLCLI
 {
     DBAPI api;
-   Patient p;
+
     public ODLCLI() 
     {
         preStart();
@@ -28,12 +28,13 @@ public class ODLCLI
                             "username and password.\n");
 
         Scanner sc = new Scanner(System.in);
-        System.out.print("Username (ie \"jsmith\"): ");
-        String user = sc.next();
+        //System.out.print("Username (ie \"jsmith\"): ");
+       // String user = sc.next();
+        String user="SSANGANE";
        
         
-        String passwd = new String(System.console().readPassword("Password: "));
-       
+       // String passwd = new String(System.console().readPassword("Password: "));
+       String passwd="200022497";
        
         
         api = new DBAPI();
@@ -179,6 +180,7 @@ public class ODLCLI
     
     public void healthProfMenu()
     {
+    	System.out.println("Show health prof menu");
     	//Menu for health professionals    	
     }
     
