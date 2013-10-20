@@ -93,7 +93,7 @@ public class DBAPI {
     public String authLogin(String uname, String password) throws SQLException
     {
     	   	
-    	String PATIENT_ID="",HP_ID="",type="";
+    	String type="";
     	
     	String query_patient="SELECT PATIENT_ID from PATIENT_INFO WHERE PATIENT_ID='"+uname+"' AND PASSWORD='"+password+"'";
 		String query_hp="SELECT HP_ID from HP_INFO WHERE HP_ID='"+uname+"' AND PASSWORD='"+password+"'";
