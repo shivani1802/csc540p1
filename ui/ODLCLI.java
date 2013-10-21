@@ -1,5 +1,7 @@
 package ui;
+import java.sql.SQLException;
 import java.util.Scanner;
+
 import lib.*;
 
 /**
@@ -26,16 +28,21 @@ public class ODLCLI
                             "username and password.\n");
 
         Scanner sc = new Scanner(System.in);
-        System.out.print("Username (ie \"jsmith\"): ");
-        String user = sc.next();
-        String passwd = new String(System.console().readPassword("Password: "));
+        //System.out.print("Username (ie \"jsmith\"): ");
+       // String user = sc.next();
+        String user="SSANGANE";
+       
+        
+       // String passwd = new String(System.console().readPassword("Password: "));
+       String passwd="200022497";
+       
         
         api = new DBAPI();
         if (!api.authDB(user, passwd)) {
             System.out.println("\nError connecting to Oracle database. Please try again.\n");
             preStart();
         }
-        promptReinit();
+           promptReinit();
     }
 
     public void promptReinit() {
@@ -81,31 +88,43 @@ public class ODLCLI
         }
     }
 
-    public void login()
+    public void login() 
     {
-        System.out.println("Not yet implemented - should call DBAPI.authLogin " +
-                            "and then call appropriate (patient/healthProfessional)" +
-                            " class to continue execution.");
-        startMenu();
-        /*
-        //do some stuff to validate user/pass and determine role
-        //(maybe have separate login class/module and call it here?)
-        System.out.println("role of user is defaulted to patient for now");
-        String role = "patient";
+    	String role="";
+    	//Take username and password from the user
+        Scanner s=new Scanner(System.in);
+        String uname="", password="";
+        System.out.println("Username");
+        uname=s.next();
+       
+        System.out.println("Password");
+        password=s.next();
+               
+        //call to DBAPI.authLogin for validation
+        try{
+       role=api.authLogin(uname,password);
+        
+        
+        }
+        
+        catch(SQLException e )
+        {
+        	System.out.println("ERROR");
+        }
+        
+  
 
         switch (role) {
             case "patient":
                 patientMenu();
                 break;
-            case "physician":
-            //falls through
-            case "nurse":
-                healthProfMenu();
+            case "HP":
+            	healthProfMenu();
                 break;
             default:
                 System.out.println("Login incorrect, please try again.");
                 login();
-        }*/
+        }
     }
 
     public void createUser()
@@ -118,4 +137,83 @@ public class ODLCLI
         System.out.println(msg + "\n");
         System.exit(status);
     }
+    
+    public void patientMenu()
+    {
+    	
+    	System.out.println("Select an option");
+    	Scanner in=new Scanner(System.in);
+    	
+    	System.out.println("1. Enter Observations");
+    	System.out.println("2. View Observations");
+    	System.out.println("3. Add a new Observation Type");
+    	System.out.println("4. View my Alerts");
+    	System.out.println("5. Manage Health Friends");
+    	System.out.println("6. Back");
+    	String input = in.next();
+    	
+    	 switch (input) {
+         case "1":
+           //add functionality 
+             break;
+         case "2":
+            //api.viewObs();
+             break;
+         case "3":
+        	//add functionality
+        	 break;
+         case "4":
+        	// api.viewAlerts();
+        	 break;
+         case "5":
+        	 healthFriendsMenu();
+        	 break;
+         case "6":
+        	 startMenu();
+        	 break;
+        	
+         default:
+             System.out.println("Invalid input. Please Try again.");
+    	}
+
+    }
+    
+    public void healthProfMenu()
+    {
+    	System.out.println("Show health prof menu");
+    	//Menu for health professionals    	
+    }
+    
+    
+    public  void healthFriendsMenu()
+	{
+	System.out.println("Select an option");
+	Scanner in=new Scanner(System.in);
+	
+	System.out.println("1. View existing Health Friends");
+	System.out.println("2. Find a new Health Friend");
+	System.out.println("3. Find a Health Friend at risk");
+	System.out.println("4. Back");
+	String input = in.next();
+	
+	 switch (input) {
+     case "1":
+       //add functionality 
+         break;
+     case "2":
+      //add functionality 
+         break;
+     case "3":
+    	//add functionality
+    	 break;
+     case "4":
+    	 patientMenu();
+    	 break;
+     default:
+         System.out.println("Invalid input. Please Try again.");
+	
+
+	}
+
+}
     }
