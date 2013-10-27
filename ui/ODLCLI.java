@@ -169,7 +169,7 @@ public class ODLCLI
                     recordObservation();
                     break;
                 case "2":
-                    viewObservation(id);
+                    viewObservations(id);
                     break;
                 case "3":
                     addObservationType();
@@ -204,9 +204,9 @@ public class ODLCLI
     	api.enterObservation("ggeorge",obsType,obsDate,obsTime);
     	
     }
-    public void viewObservation(String patientId)
+    public void viewObservations(String patientId)
     {
-    	api.displayObservation(patientId);
+    	api.displayObservations(patientId);
     }
     public void addObservationType()
     {
@@ -345,7 +345,7 @@ public class ODLCLI
         System.out.println("Select an option");
         Scanner in=new Scanner(System.in);
 
-        System.out.println("1. View a list of the friends active (unviewed) alerts");
+        System.out.println("1. View a list of the friend's active (unviewed) alerts");
         System.out.println("2. View observations of the friend");
         System.out.println("3. Back");
         String input = in.next();

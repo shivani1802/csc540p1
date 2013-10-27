@@ -209,8 +209,7 @@ public class DBAPI {
         }
     }
 
-    public void displayObservation(String patientId) {
-        System.out.println("HI");
+    public void displayObservations(String patientId) {
         int i=0;
         try
         {
