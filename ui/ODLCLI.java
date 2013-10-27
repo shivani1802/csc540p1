@@ -113,7 +113,7 @@ public class ODLCLI
 
         switch (role) {
             case "patient":
-                patientMenu();
+                patientMenu(id);
                 break;
             case "HP":
             	healthProfMenu();            	
