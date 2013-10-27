@@ -89,8 +89,8 @@ public class ODLCLI
 
     public void login()
     {
-    	String role="";
-    	//Take username and password from the user
+        String role="";
+        //Take username and password from the user
         Scanner s=new Scanner(System.in);
         String uname="", password="";
         System.out.print("\nUsername: ");
@@ -103,18 +103,13 @@ public class ODLCLI
                
         //call to DBAPI.authLogin for validation
         try{
-       role=api.authLogin(uname,password);
-        
-        
+            role=api.authLogin(uname,password);
         }
-        
+
         catch(SQLException e )
         {
-        	System.out.println("ERROR");
+            System.out.println("ERROR");
         }
-        
-        
-
         switch (role) {
             case "patient":
                 patientMenu(id);
@@ -127,19 +122,19 @@ public class ODLCLI
         }
     }
     public void invalidUserLogin() {
-	 Scanner s = new Scanner(System.in);
-         System.out.println("\nLogin incorrect. Would you like to try again?");
-         System.out.print("1. Try again\n2. Create User\n3. Back\nInput: ");
-         String choice = s.next();
-         if (choice.equals("1"))
-             login();
-         else if (choice.equals("2"))
-             createUser();
-         else if (choice.equals("3"))
-             startMenu();
-         else {
-             System.out.println("Invalid option.  Please try again.");
-             login();
+        Scanner s = new Scanner(System.in);
+        System.out.println("\nLogin incorrect. Would you like to try again?");
+        System.out.print("1. Try again\n2. Create User\n3. Back\nInput: ");
+        String choice = s.next();
+        if (choice.equals("1"))
+            login();
+        else if (choice.equals("2"))
+            createUser();
+        else if (choice.equals("3"))
+            startMenu();
+        else {
+            System.out.println("Invalid option.  Please try again.");
+            login();
         }
     }
 
@@ -156,42 +151,42 @@ public class ODLCLI
     
     public void patientMenu(String id)
     {
-while(true)
-{
-        Scanner in = new Scanner(System.in);
-        System.out.println("\n\n\n\n===== Observations of Dailing Living -- Observation Menu =====\n");
-        System.out.println("Available Options:");
-        System.out.println(" 1.  Enter Observations");
-        System.out.println(" 2.  View Observations");
-        System.out.println(" 3.  Add a new Observation Type");
-        System.out.println(" 4.  View my Alerts");
-        System.out.println(" 5  Manage HealthFriends");
-        System.out.println(" 6.  Back");
-        System.out.print("\nInput: ");
-        String input = in.next();
-        switch (input) {
-            case "1":
-                recordObservation();
-                break;
-            case "2":
-                viewObservation(id);
-                break;
-            case "3":
-            	addObservationType();
-                break;
-            case "4":
-              //  createUser();//write alert function name here --createUser() shouldn't be here, should it?
-                break;
-            case "5":
-            	healthFriendsMenu();
-                break;
-            case "6":
-                startMenu();;
-            default:
-                System.out.println("Invalid input. Please Try again.");
-                patientMenu(id);
+        while(true)
+        {
+            Scanner in = new Scanner(System.in);
+            System.out.println("\n\n\n\n===== Observations of Dailing Living -- Observation Menu =====\n");
+            System.out.println("Available Options:");
+            System.out.println(" 1.  Enter Observations");
+            System.out.println(" 2.  View Observations");
+            System.out.println(" 3.  Add a new Observation Type");
+            System.out.println(" 4.  View my Alerts");
+            System.out.println(" 5  Manage HealthFriends");
+            System.out.println(" 6.  Back");
+            System.out.print("\nInput: ");
+            String input = in.next();
+            switch (input) {
+                case "1":
+                    recordObservation();
+                    break;
+                case "2":
+                    viewObservation(id);
+                    break;
+                case "3":
+                    addObservationType();
+                    break;
+                case "4":
+                    //createUser();//write alert function name here --createUser() shouldn't be here, should it?
+                    break;
+                case "5":
+                    healthFriendsMenu();
+                    break;
+                case "6":
+                    startMenu();;
+                default:
+                    System.out.println("Invalid input. Please Try again.");
+                    patientMenu(id);
+            }
         }
-       }
     }
     public void recordObservation()
     {
