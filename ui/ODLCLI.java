@@ -31,9 +31,9 @@ public class ODLCLI
 
         Scanner sc = new Scanner(System.in);
         System.out.println("Username (ie \"jsmith\"): ");
-        String user = sc.next();
+        String user = sc.nextLine().trim();
         //System.out.print("Password: ");
-        //String passwd = sc.next();
+        //String passwd = sc.nextLine().trim();
         //Use hidden password - comment out only for local testing
         String passwd = new String(System.console().readPassword("Password: "));
         
@@ -50,7 +50,7 @@ public class ODLCLI
         System.out.print("\nWould you like to delete any existing tables and " + 
                     "re-initialize tables with the sample data? (y/n)");
         Scanner sc = new Scanner(System.in);
-        String in = sc.next();
+        String in = sc.nextLine().trim();
         switch (in) {
             case "y":
                 api.dropTables();
@@ -73,7 +73,7 @@ public class ODLCLI
         System.out.println(" 2.  Create User");
         System.out.println(" 3.  Exit");
         System.out.print("\nInput: ");
-        String input = in.next();
+        String input = in.nextLine().trim();
         switch (input) {
             case "1":
                 login();
@@ -96,12 +96,12 @@ public class ODLCLI
         Scanner s=new Scanner(System.in);
         String uname="", password="";
         System.out.print("\nUsername: ");
-        uname=s.next();
+        uname=s.nextLine().trim();
         id=uname;
         //System.out.print("Password: ");
         //Use hidden password - comment out only for local testing
         password = new String(System.console().readPassword("Password: "));
-        //password=s.next();
+        //password=s.nextLine().trim();
         //call to DBAPI.authLogin for validation
         try {
             role=api.authLogin(uname,password);
@@ -125,7 +125,7 @@ public class ODLCLI
         Scanner s = new Scanner(System.in);
         System.out.println("\nLogin incorrect. Would you like to try again?");
         System.out.print("1. Try again\n2. Create User\n3. Back\nInput: ");
-        String choice = s.next();
+        String choice = s.nextLine().trim();
         if (choice.equals("1"))
             login();
         else if (choice.equals("2"))
@@ -163,7 +163,7 @@ public class ODLCLI
             System.out.println(" 5. Manage HealthFriends");
             System.out.println(" 6.  Back (log out)");
             System.out.print("\nInput: ");
-            String input = in.next();
+            String input = in.nextLine().trim();
             switch (input) {
                 case "1":
                     recordObservation();
@@ -196,12 +196,12 @@ public class ODLCLI
         System.out.println("Enter observations for the following available types based on your Illness :");
         api.observationMenu("ggeorge");
         System.out.print("Enter your type of Observation : ");
-        obsType= sc.next();
+        obsType= sc.nextLine().trim();
         System.out.println(obsType +":\nEnter :");
         System.out.println("Enter Date of Observation in mm/dd/yyyy format :");
-        obsDate= sc.next();
+        obsDate= sc.nextLine().trim();
         System.out.println("Enter Time of Observation in HH:mm:ss format :");
-        obsTime= sc.next();
+        obsTime= sc.nextLine().trim();
         api.enterObservation("ggeorge",obsType,obsDate,obsTime);
     }
 
@@ -214,11 +214,11 @@ public class ODLCLI
     {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter your Type of Observation: ");
-        String type= sc.next();
+        String type= sc.nextLine().trim();
         System.out.print("Enter your Category of Observation: ");
-        String category= sc.next();
+        String category= sc.nextLine().trim();
         System.out.print("Enter your Additional Information about the Observation: ");
-        String additionalInfo= sc.next();
+        String additionalInfo= sc.nextLine().trim();
         if (userType.equals(PATIENT)) {
             if (api.addNewType(type, category, additionalInfo, "general"))
                 System.out.println("New general observation type successfully added!");
@@ -236,7 +236,7 @@ public class ODLCLI
         Scanner in = new Scanner(System.in);
         System.out.print("Enter a Patient/illness Class to associate the observation\n" +
             "    type \"" + type + "\" with (N/A for General): ");
-        String illness = in.next();
+        String illness = in.nextLine().trim();
         if(api.addNewType(type, category, additionalInfo, illness)) {
             System.out.println("Association between type \"" + type + "\" and patient class \"" +
                 illness + "\" successfully added!");
@@ -252,9 +252,9 @@ public class ODLCLI
         Scanner in = new Scanner(System.in);
         System.out.println("Add an association between observation type and illness: ");
         System.out.print("Observation type: ");
-        String type = in.next();
-        System.out.println("Patient Class/Illness (N/A for General): ");
-        String illness = in.next();
+        String type = in.nextLine().trim();
+        System.out.print("Patient Class/Illness (N/A for General): ");
+        String illness = in.nextLine().trim();
         if (illness.equals("N/A"))
             illness = "General";
         if (api.addAssoc(type, illness)) { //associate illness with type, overwrite general.  Else, create new?
@@ -277,7 +277,7 @@ public class ODLCLI
             System.out.println(" 3.  View Patients");
             System.out.println(" 4.  Back (log out)");
             System.out.print("\nInput: ");
-            String input = in.next();
+            String input = in.nextLine().trim();
             switch (input) {
                 case "1":
                     addObservationType(HP);
@@ -308,7 +308,7 @@ public class ODLCLI
         System.out.println("2. Find a new Health Friend");
         System.out.println("3. Find a Health Friend at risk");
         System.out.println("4. Back");
-        String input = in.next();
+        String input = in.nextLine().trim();
 
         switch (input) {
             case "1":
@@ -323,7 +323,7 @@ public class ODLCLI
                 System.out.println("***End of Health Friends List***\n\n");
                 System.out.println("Select a friend by Health Friend ID  or '0' to go back");
 
-                selectHF=in.next();
+                selectHF=in.nextLine().trim();
 
                 if(selectHF.matches("0"))
                     healthFriendsMenu();
@@ -346,12 +346,12 @@ public class ODLCLI
                 while(option.matches("y")&&existnewfriend)
                 {
                     System.out.println("\n\nAdd new HealthFriend? (y/n) ");
-                    option=s.next();
+                    option=s.nextLine().trim();
                     switch(option)
                     {
                         case "y":
                             System.out.println("Enter PATIENT ID to add him as your friend: ");
-                            addFriend=s.next();
+                            addFriend=s.nextLine().trim();
                             try{
                                 api.addNewHF(id,addFriend);
                                 existnewfriend=api.findNewHF(id);
@@ -381,12 +381,12 @@ public class ODLCLI
                 while(option.matches("y")&&atRisk)
                 {
                     System.out.println("\n\nSend message to health friend at risk ? (y/n) ");
-                    option=sc.next();
+                    option=sc.nextLine().trim();
                     switch(option)
                     {
                         case "y":
                             System.out.println("Enter HealthFriend ID to message healthfriend: ");
-                            riskFriend=sc.next();
+                            riskFriend=sc.nextLine().trim();
                             try {
                                 api.msgRiskHF(id,riskFriend);
                                 atRisk=api.viewRiskHF(id);
@@ -419,7 +419,7 @@ public class ODLCLI
         System.out.println("1. View a list of the friend's active (unviewed) alerts");
         System.out.println("2. View observations of the friend");
         System.out.println("3. Back");
-        String input = in.next();
+        String input = in.nextLine().trim();
         switch (input) {
             case "1":
                 try{
