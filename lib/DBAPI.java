@@ -74,8 +74,11 @@ public class DBAPI {
                 "VALUES ('Sheldon Cooper', '2808 Avent Ferry Road, Raleigh, NC 27616', 33 , 'Female','scooper','cooper123','Y')");
             //System.out.println("inserted value Patient");
 
-            stmt.executeUpdate("CREATE TABLE HP_Info " +
-                "(HP_name VARCHAR(32), ID VARCHAR(32), Password VARCHAR(16), Clinic VARCHAR(32), PRIMARY KEY(ID))");
+
+            stmt.executeUpdate("create table HP_INFO" +
+                "(name VARCHAR(32), id VARCHAR(32), password VARCHAR(16), clinic VARCHAR(32), PRIMARY KEY(id))");
+
+            System.out.println("table created");
             stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Altaf Hussain', 'ahussain', 'hussain123', 'Dayview')");
             stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Manu Joseph', 'mjoseph', 'joseph123', 'Dayview')");
             stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Shane Lee', 'slee', 'lee123', 'Huntington')");
@@ -132,9 +135,6 @@ public class DBAPI {
 
             stmt.executeUpdate("create table HAS_HF"+
                 "(hf_id varchar(20), patient_id varchar(10), on_date DATE, PRIMARY KEY(hf_id,patient_id), FOREIGN KEY(patient_id) REFERENCES PATIENT_INFO)");
-
-            stmt.executeUpdate("create table HP_INFO"+
-                "(hp_id varchar(20), name varchar(20), clinic varchar(20), password varchar(20), PRIMARY KEY(hp_id))");
         }
 
         catch(Throwable err) {
@@ -335,7 +335,7 @@ public class DBAPI {
     {
         String type="";
         String query_patient="SELECT PATIENT_ID from PATIENT_INFO WHERE PATIENT_ID='"+uname+"' AND PASSWORD='"+password+"'";
-        String query_hp="SELECT HP_ID from HP_INFO WHERE HP_ID='"+uname+"' AND PASSWORD='"+password+"'";
+        String query_hp="SELECT id from HP_INFO WHERE id='"+uname+"' AND PASSWORD='"+password+"'";
 
         Statement stmt = conn.createStatement();
         try {
