@@ -9,6 +9,8 @@ import lib.*;
 
 public class ODLCLI
 {
+    static final String HP = "HP";
+    static final String PATIENT = "patient";
     DBAPI api;
     String id="";
 
@@ -100,21 +102,19 @@ public class ODLCLI
         //Use hidden password - comment out only for local testing
         password = new String(System.console().readPassword("Password: "));
         //password=s.next();
-               
         //call to DBAPI.authLogin for validation
-        try{
+        try {
             role=api.authLogin(uname,password);
         }
-
         catch(SQLException e )
         {
             System.out.println("ERROR");
         }
         switch (role) {
-            case "patient":
+            case PATIENT:
                 patientMenu(id);
                 break;
-            case "HP":
+            case HP:
                 healthProfMenu();
                 break;
             default:
@@ -160,8 +160,8 @@ public class ODLCLI
             System.out.println(" 2.  View Observations");
             System.out.println(" 3.  Add a new Observation Type");
             System.out.println(" 4.  View my Alerts");
-            System.out.println(" 5  Manage HealthFriends");
-            System.out.println(" 6.  Back");
+            System.out.println(" 5. Manage HealthFriends");
+            System.out.println(" 6.  Back (log out)");
             System.out.print("\nInput: ");
             String input = in.next();
             switch (input) {
@@ -172,7 +172,7 @@ public class ODLCLI
                     viewObservations(id);
                     break;
                 case "3":
-                    addObservationType();
+                    addObservationType(PATIENT);
                     break;
                 case "4":
                     //createUser();//write alert function name here --createUser() shouldn't be here, should it?
@@ -181,7 +181,8 @@ public class ODLCLI
                     healthFriendsMenu();
                     break;
                 case "6":
-                    startMenu();;
+                    startMenu();
+                    break;
                 default:
                     System.out.println("Invalid input. Please Try again.");
                     patientMenu(id);
@@ -190,44 +191,114 @@ public class ODLCLI
     }
     public void recordObservation()
     {
-    	String obsType,obsDate,obsTime;
-    	Scanner sc = new Scanner(System.in);
-    	System.out.println("Enter observations for the following available types based on your Illness :");
-    	api.observationMenu("ggeorge");
-    	System.out.print("Enter your type of Observation : ");
-    	obsType= sc.next();
-    	System.out.println(obsType +":\nEnter :");
-    	System.out.println("Enter Date of Observation in mm/dd/yyyy format :");
-    	obsDate= sc.next();
-    	System.out.println("Enter Time of Observation in HH:mm:ss format :");
-    	obsTime= sc.next();
-    	api.enterObservation("ggeorge",obsType,obsDate,obsTime);
-    	
-    }
-    public void viewObservations(String patientId)
-    {
-    	api.displayObservations(patientId);
-    }
-    public void addObservationType()
-    {
-    	Scanner sc = new Scanner(System.in);
-    	System.out.print("Enter your type of Observation : ");
-    	String type= sc.next();
-    	System.out.print("Enter your Category of Observation : ");
-    	String category= sc.next();
-    	System.out.print("Enter your Additinal Information about the  Observation : ");
-    	String addtionalInfo= sc.next();
-    	api.addNewType(type,category,addtionalInfo);
-    }
-    
-    
-    public void healthProfMenu()
-    {
-        System.out.println("Show health prof menu");
-        //Menu for health professionals            
+        String obsType,obsDate,obsTime;
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter observations for the following available types based on your Illness :");
+        api.observationMenu("ggeorge");
+        System.out.print("Enter your type of Observation : ");
+        obsType= sc.next();
+        System.out.println(obsType +":\nEnter :");
+        System.out.println("Enter Date of Observation in mm/dd/yyyy format :");
+        obsDate= sc.next();
+        System.out.println("Enter Time of Observation in HH:mm:ss format :");
+        obsTime= sc.next();
+        api.enterObservation("ggeorge",obsType,obsDate,obsTime);
     }
 
-    public  void healthFriendsMenu()
+    public void viewObservations(String patientId)
+    {
+        api.displayObservations(patientId);
+    }
+
+    public void addObservationType(String userType)
+    {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter your Type of Observation: ");
+        String type= sc.next();
+        System.out.print("Enter your Category of Observation: ");
+        String category= sc.next();
+        System.out.print("Enter your Additional Information about the Observation: ");
+        String additionalInfo= sc.next();
+        if (userType.equals(PATIENT)) {
+            if (api.addNewType(type, category, additionalInfo, "general"))
+                System.out.println("New general observation type successfully added!");
+            else
+                System.out.println("Failed to add new observation type!");
+        }
+        else if (userType.equals(HP))
+            addAssocTypeIll(type, category, additionalInfo);
+    }
+
+    /**
+     *  For associating an observation type with an illness at the time of insertion.
+     */
+    public void addAssocTypeIll(String type, String category, String additionalInfo) {
+        Scanner in = new Scanner(System.in);
+        System.out.print("Enter a Patient/illness Class to associate the observation " +
+            "    type \"" + type + "\" with (N/A for General): ");
+        String illness = in.next();
+        if(api.addNewType(type, category, additionalInfo, illness)) {
+            System.out.println("Association between type \"" + type + "\" and patient class \"" +
+                illness + "\" successfully added!");
+        }
+        else
+            System.out.println("Failed to add association.");
+    }
+
+    /**
+     *  For adding an association to a pre-existing type of observation.
+     */
+    public void addAssocTypeIll() {
+        Scanner in = new Scanner(System.in);
+        System.out.println("Add an association between observation type and illness: ");
+        System.out.print("Observation type: ");
+        String type = in.next();
+        System.out.println("Patient Class/Illness (N/A for General): ");
+        String illness = in.next();
+        if (illness.equals("N/A"))
+            illness = "General";
+        if (api.addAssoc(type, illness)) { //associate illness with type, overwrite general.  Else, create new?
+            System.out.println("Association between type \"" + type + "\" and patient class \"" +
+                illness + "\" successfully added!");
+        }
+        else
+            System.out.println("Failed to add association.");
+    }
+
+    public void healthProfMenu()
+    {
+        while(true)
+        {
+            Scanner in = new Scanner(System.in);
+            System.out.println("\n\n\n\n===== Observations of Dailing Living -- Health Professional Menu =====\n");
+            System.out.println("Available Options:");
+            System.out.println(" 1.  Add a New Observation Type");
+            System.out.println(" 2.  Add an Association Between Observation Type and Illness");
+            System.out.println(" 3.  View Patients");
+            System.out.println(" 4.  Back (log out)");
+            System.out.print("\nInput: ");
+            String input = in.next();
+            switch (input) {
+                case "1":
+                    addObservationType(HP);
+                    break;
+                case "2":
+                    addAssocTypeIll();
+                    break;
+                case "3":
+                    //viewPatients();
+                    break;
+                case "4":
+                    startMenu();
+                    break;
+                default:
+                    System.out.println("Invalid input. Please Try again.");
+                    patientMenu(id);
+            }
+        }
+    }
+
+    public void healthFriendsMenu()
     {
         String selectHF="";
         boolean hasHF=true;
