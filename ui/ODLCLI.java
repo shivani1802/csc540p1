@@ -234,7 +234,7 @@ public class ODLCLI
      */
     public void addAssocTypeIll(String type, String category, String additionalInfo) {
         Scanner in = new Scanner(System.in);
-        System.out.print("Enter a Patient/illness Class to associate the observation " +
+        System.out.print("Enter a Patient/illness Class to associate the observation\n" +
             "    type \"" + type + "\" with (N/A for General): ");
         String illness = in.next();
         if(api.addNewType(type, category, additionalInfo, illness)) {

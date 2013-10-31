@@ -250,19 +250,28 @@ public class DBAPI {
             rs = stmt.executeQuery("SELECT COUNT(*) FROM Observation_type OT WHERE OT.type = '" + type +
                 "' AND OT.illness = '" + illness + "'");
             rs.next();
-            System.out.println("hmm: " + rs.getInt("COUNT(*)"));
-            System.exit(0);
-            
             //association is already present
-            rs.next();
             if (rs.getInt("COUNT(*)") > 0)
                 return true;
+            rs = stmt.executeQuery("SELECT * FROM Observation_type OT WHERE OT.type = '" + type + "'");
+            if (!rs.next())
+                return false; //obs type not defined
 
             if(illness.equals("General")) {
-                rs = stmt.executeQuery("SELECT * FROM Observation_type OT WHERE OT.type = '" + type + "'");
-                if (!rs.next())
-                    return false; //obs type not defined
-                rs.previous();
+                stmt.executeQuery("UPDATE Observation_type OT SET OT.illness = '" + illness +
+                    "' WHERE OT.type = '" + type + "'");
+                //must delete multiple duplicate resulting general illness assoc's (going from specific to general)
+            }
+            else {
+                rs = stmt.executeQuery("SELECT * FROM Observation_type OT WHERE OT.type = '" + type + "' AND OT.illness = 'General'");
+                //if obs type is associated with general patient class
+                if(rs.next()) {
+                    stmt.executeQuery("UPDATE Observation_type OT SET OT.illness = '" + illness +
+                        "' WHERE OT.type = '" + type + "' AND OT.illness = 'General'");
+                }
+                else {
+                    
+                }
             }
         }
         catch (Throwable err) {
@@ -277,7 +286,7 @@ public class DBAPI {
         boolean flag=true; //a more descriptive name would be good here
         try
         {   //To check if the type already exists
-            check = stmt.executeQuery("select type from observation_type where illness =" + illness);
+            check = stmt.executeQuery("select type from observation_type where illness ='" + illness + "'");
             while (check.next()) {
                 String typeExist = check.getString("type"); 
                 if(typeExist.equals(type))
