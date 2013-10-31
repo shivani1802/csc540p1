@@ -48,6 +48,7 @@ public class DBAPI {
           stmt.executeUpdate("drop table Alerts");
           stmt.executeUpdate("drop table HAS_HF");
           stmt.executeUpdate("drop table patient_info");
+          stmt.executeUpdate("drop table type_assoc_ill");
           stmt.executeUpdate("drop table Observation_Type");
           stmt.executeUpdate("drop table HP_INFO");
         }
@@ -78,29 +79,35 @@ public class DBAPI {
             stmt.executeUpdate("create table HP_INFO" +
                 "(name VARCHAR(32), id VARCHAR(32), password VARCHAR(16), clinic VARCHAR(32), PRIMARY KEY(id))");
 
-            System.out.println("table created");
             stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Altaf Hussain', 'ahussain', 'hussain123', 'Dayview')");
             stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Manu Joseph', 'mjoseph', 'joseph123', 'Dayview')");
             stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Shane Lee', 'slee', 'lee123', 'Huntington')");
             stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Shyam Prasad', 'sprasad', 'prasad123', 'Huntington')");
 
-
             stmt.executeUpdate("create table Observation_Type"+
-                "(Illness varchar (10),Type varchar (40), Category varchar(40), AdditionalInfo varchar (200), primary key (Illness, Type))");
+                "(Type varchar (40), Category varchar(40), AdditionalInfo varchar (200), primary key (Type))");
             //System.out.println("created table oBS");
-            stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
-                "VALUES ('HIV','Temperature','Physiological','Amount in Fahrenheit')");
-            stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
-                "VALUES ('General', 'Diet','Behavioral','What was consumed and Amount in sevings')");
-            stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
-                "VALUES ('General', 'Weight','Physiological','Amount in Pounds')");
-            stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
-                "VALUES ('COPD','Oxygen Saturation','Physiological','the fraction of hemoglobin that is saturated by oxygen, e.g. 95% ?')");
+            stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                "VALUES ('Temperature','Physiological','Amount in Fahrenheit')");
+            stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                "VALUES ('Diet','Behavioral','What was consumed and Amount in sevings')");
+            stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                "VALUES ('Weight','Physiological','Amount in Pounds')");
+            stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                "VALUES ('Oxygen Saturation','Physiological','the fraction of hemoglobin that is saturated by oxygen, e.g. 95% ?')");
             //System.out.println("inserted table oBS");
+
+            stmt.executeUpdate("create table type_assoc_ill" +
+                "(Illness varchar (40), Type varchar(40), primary key (Illness, Type), foreign key (Type) references Observation_Type(Type))");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('HIV', 'Temperature')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('General', 'Diet')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('General', 'Weight')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('COPD', 'Oxygen Saturation')");
+
 
             stmt.executeUpdate("create table Has_Illness"+
                 "(Patient_Id varchar(10), Illness varchar(20), Type varchar (40),  foreign key(Patient_Id) references Patient_Info(Patient_Id), " +
-                "foreign key (Illness, Type) references Observation_Type(Illness,Type))");
+                "foreign key (Illness, Type) references type_assoc_ill(Illness,Type))");
             //System.out.println("created has illness");
             stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness,Type)" +
                 "VALUES ('ggeorge', 'HIV','Temperature')");
@@ -124,7 +131,7 @@ public class DBAPI {
             //stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observtion,time_of_observation,AdditionalInfo)"+
             //"values ('O1', 'Diet', to_date('01-01-2011','dd-mm-yyyy'),to_date('18:12:02', 'HH24:MI:SS'),'What was consumed and amount in servings: egg 1, orange ½, toast 1, margarine 1')");
             stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observation,time_of_observation,AdditionalInfo)"+
-                "values ('O1', 'Diet','01-01-2011','18:12:02','What was consumed and amount in servings: egg 1, orange ½, toast 1, margarine 1')");
+                "values ('O1', 'Diet','01-01-2011','18:12:02','What was consumed, amount that was consumed')");
 
             stmt.executeUpdate("create table Makes_Observation" +
             "(pId varchar(10), OId varchar(5), Date_of_record date, time_of_record varchar(20), foreign key (pId) references Patient_Info(Patient_Id), " +
@@ -174,7 +181,7 @@ public class DBAPI {
         Scanner sc= new Scanner(System.in);
         try
         {
-            rs = stmt.executeQuery("select distinct AdditionalInfo from Observation_Type where Type ='"+Obs_Type+"'");
+            rs = stmt.executeQuery("select AdditionalInfo from Observation_Type where Type ='"+Obs_Type+"'");
             //rs = stmt.executeQuery("select AdditionalInfo from Observation_Type where Type ='Diet' and Illness ='General' or Illness in ( SELECT Illness FROM Has_Illness where Patient_Id= 'ggeorge')");
             while (rs.next()) {
                 String AdditionalInfo = rs.getString("AdditionalInfo");
@@ -247,32 +254,32 @@ public class DBAPI {
             return false;
         ResultSet rs;
         try {
-            rs = stmt.executeQuery("SELECT COUNT(*) FROM Observation_type OT WHERE OT.type = '" + type +
-                "' AND OT.illness = '" + illness + "'");
+            rs = stmt.executeQuery("SELECT COUNT(*) FROM type_assoc_ill AI WHERE AI.type = '" + type +
+                "' AND AI.illness = '" + illness + "'");
             rs.next();
             //association is already present
             if (rs.getInt("COUNT(*)") > 0)
                 return true;
-            rs = stmt.executeQuery("SELECT * FROM Observation_type OT WHERE OT.type = '" + type + "'");
+            rs = stmt.executeQuery("SELECT * FROM type_assoc_ill AI WHERE AI.type = '" + type + "'");
             if (!rs.next())
                 return false; //obs type not defined
 
             if(illness.equals("General")) {
-                stmt.executeQuery("UPDATE Observation_type OT SET OT.illness = '" + illness +
-                    "' WHERE OT.type = '" + type + "'");
+                stmt.executeQuery("UPDATE type_assoc_ill AI SET AI.illness = '" + illness +
+                    "' WHERE AI.type = '" + type + "'");
                 //must delete multiple duplicate resulting general illness assoc's (going from specific to general)
-            }
+            }/*
             else {
-                rs = stmt.executeQuery("SELECT * FROM Observation_type OT WHERE OT.type = '" + type + "' AND OT.illness = 'General'");
+                rs = stmt.executeQuery("SELECT * FROM type_assoc_ill AI WHERE AI.type = '" + type + "' AND AI.illness = 'General'");
                 //if obs type is associated with general patient class
                 if(rs.next()) {
-                    stmt.executeQuery("UPDATE Observation_type OT SET OT.illness = '" + illness +
-                        "' WHERE OT.type = '" + type + "' AND OT.illness = 'General'");
+                    stmt.executeQuery("UPDATE type_assoc_ill AI SET AI.illness = '" + illness +
+                        "' WHERE AI.type = '" + type + "' AND AI.illness = 'General'");
                 }
                 else {
                     
                 }
-            }
+            }*/
         }
         catch (Throwable err) {
             conn = null;
@@ -286,7 +293,7 @@ public class DBAPI {
         boolean flag=true; //a more descriptive name would be good here
         try
         {   //To check if the type already exists
-            check = stmt.executeQuery("select type from observation_type where illness ='" + illness + "'");
+            check = stmt.executeQuery("select type from type_assoc_ill where illness ='" + illness + "'");
             while (check.next()) {
                 String typeExist = check.getString("type"); 
                 if(typeExist.equals(type))
@@ -295,8 +302,9 @@ public class DBAPI {
             //here first check if that particular type already exists
             if(flag)
             {
-                rs = stmt.executeQuery( "INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
-                    "VALUES ('" + illness + "','" + type + "','" + category + "','" + addtionalInformation + "')" ); 
+                rs = stmt.executeQuery("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                    "VALUES ('" + type + "','" + category + "','" + addtionalInformation + "')" );
+                rs = stmt.executeQuery("INSERT INTO type_assoc_ill VALUES ('" + illness + "','" + type + "')");
             }
         }
         catch(Throwable err) {
