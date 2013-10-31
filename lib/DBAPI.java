@@ -69,7 +69,7 @@ public class DBAPI {
                 " Password varchar(16), PublicStatus char(2), primary key (Patient_Id))");
             //System.out.println("inserted table Patient");
             stmt.executeUpdate("INSERT INTO Patient_Info " +
-                "VALUES ('Gary George', '2806 Confer Drive Raleigh NC 27606', 25 , 'Male','ggeorge','geo123','Y')");
+                "VALUES ('Gary George', '2806 Conifer Drive, Raleigh, NC 27606', 25 , 'Male','ggeorge','geo123','Y')");
             stmt.executeUpdate("INSERT INTO Patient_Info " +
                 "VALUES ('Sheldon Cooper', '2808 Avent Ferry Road, Raleigh, NC 27616', 33 , 'Female','scooper','cooper123','Y')");
             //System.out.println("inserted value Patient");
@@ -86,7 +86,7 @@ public class DBAPI {
                 "(Illness varchar (10),Type varchar (40), Category varchar(40), AdditionalInfo varchar (200), primary key (Illness, Type))");
             //System.out.println("created table oBS");
             stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
-                "VALUES ('HIV','Temprature','Physiological','Amount in Fahrenheit')");
+                "VALUES ('HIV','Temperature','Physiological','Amount in Fahrenheit')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
                 "VALUES ('General', 'Diet','Behavioral','What was consumed and Amount in sevings')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Illness, Type, Category, AdditionalInfo)" +
@@ -100,9 +100,9 @@ public class DBAPI {
                 "foreign key (Illness, Type) references Observation_Type(Illness,Type))");
             //System.out.println("created has illness");
             stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness,Type)" +
-                "VALUES ('ggeorge', 'HIV','Temprature')");
+                "VALUES ('ggeorge', 'HIV','Temperature')");
             stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness,Type)" +
-                "VALUES ('scooper', 'HIV','Temprature')");
+                "VALUES ('scooper', 'HIV','Temperature')");
             stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness,Type)" +
                 "VALUES ('scooper', 'COPD','Oxygen Saturation')");
             //System.out.println(" inserted has illness");
