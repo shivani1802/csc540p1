@@ -220,8 +220,8 @@ public class ODLCLI
         System.out.print("Enter your Additional Information about the Observation: ");
         String additionalInfo= sc.nextLine().trim();
         if (userType.equals(PATIENT)) {
-            if (api.addNewType(type, category, additionalInfo, "general"))
-                System.out.println("New general observation type successfully added!");
+            if (api.addNewType(type, category, additionalInfo, "General"))
+                System.out.println("New General observation type successfully added!");
             else
                 System.out.println("Failed to add new observation type!");
         }
