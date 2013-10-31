@@ -76,7 +76,10 @@ public class DBAPI {
 
             stmt.executeUpdate("CREATE TABLE HP_Info " +
                 "(HP_name VARCHAR(32), ID VARCHAR(32), Password VARCHAR(16), Clinic VARCHAR(32), PRIMARY KEY(ID))");
-                
+            stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Altaf Hussain', 'ahussain', 'hussain123', 'Dayview')");
+            stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Manu Joseph', 'mjoseph', 'joseph123', 'Dayview')");
+            stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Shane Lee', 'slee', 'lee123', 'Huntington')");
+            stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Shyam Prasad', 'sprasad', 'prasad123', 'Huntington')");
 
 
             stmt.executeUpdate("create table Observation_Type"+
