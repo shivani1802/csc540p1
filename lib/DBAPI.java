@@ -133,13 +133,17 @@ public class DBAPI {
             stmt.executeUpdate("create table Threshold_check" +
               		 "(Type varchar(40), AdditionalInfo varchar(100),Threshold varchar(50))");
             //System.out.println(" inserted alerts");
+            
+            stmt.executeUpdate("create table Observations" +
+                "(OId varchar(5), Type varchar(40), Date_of_observation varchar(20), time_of_observation varchar(20)," +
+                " AdditionalInfo varchar(100),value varchar(100),isactive char(5) default 'FALSE' check (isactive in ('TRUE','FALSE') )," + 
+                " primary key (OId), foreign key (Type) references Observation_Type(Type))");
+            
+            stmt.executeUpdate("CREATE TABLE messages " +
+                 "(from_pId varchar (20), to_friend varchar(20), on_date DATE, text varchar(100)," +
+                 " foreign key (from_pID) references Patient_Info, foreign key (to_friend) references Patient_Info, " +
+                "primary key (from_pId, to_friend))" );
 
-            stmt.executeUpdate("create table Observations"+
-                "(OId varchar(5), Type varchar(40), Date_of_observation varchar(20), time_of_observation varchar(20), " +
-                "AdditionalInfo varchar(100), primary key (OId),foreign key (Type) references Alerts(Type))");
-            //System.out.println("not inserted table observations new");
-            //stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observtion,time_of_observation,AdditionalInfo)"+
-            //"values ('O1', 'Diet', to_date('01-01-2011','dd-mm-yyyy'),to_date('18:12:02', 'HH24:MI:SS'),'What was consumed and amount in servings: egg 1, orange 0.5, toast 1, margarine 1')");
             stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observation,time_of_observation,AdditionalInfo)"+
                 "values ('O1', 'Diet','01-01-2011','18:12:02','What was consumed, amount that was consumed')");
 
