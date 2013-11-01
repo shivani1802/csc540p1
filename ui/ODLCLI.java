@@ -1,6 +1,8 @@
+
 package ui;
 import java.util.*;
 import java.sql.SQLException;
+
 import lib.*;
 
 /**
@@ -171,7 +173,9 @@ public class ODLCLI
                     addObservationType(PATIENT);
                     break;
                 case "4":
-                    //createUser();//write alert function name here --createUser() shouldn't be here, should it?
+                	  viewAlerts(id);//write alert function name here
+                      api.viewMessages(id);
+                	
                     break;
                 case "5":
                     healthFriendsMenu();
@@ -204,7 +208,12 @@ public class ODLCLI
     {
         api.displayObservations(patientId);
     }
-
+    
+    public void viewAlerts(String patientId)
+    {
+    	api.viewAlerts(patientId);
+    }
+    
     public void addObservationType(String userType)
     {
         System.out.print("Enter your Type of Observation: ");
@@ -378,138 +387,197 @@ public class ODLCLI
         }
     }
 
-    public void healthFriendsMenu()
+    public  void healthFriendsMenu()
+  	{
+      String selectHF="";
+      boolean hasHF=true;
+      boolean isValid;
+  	System.out.println("\n\nSelect an option");
+  	Scanner in=new Scanner(System.in);
+  	
+  	System.out.println("1. View existing Health Friends");
+  	System.out.println("2. Find a new Health Friend");
+  	System.out.println("3. Find a Health Friend at risk");
+  	System.out.println("4. Back");
+  	String input = in.next();
+  	
+  	 switch (input) {
+       case "1":
+      	 
+      	 try{
+      		 hasHF=api.viewHF(id);
+      	 }
+      	 catch(SQLException e)
+      	 {}
+      	 
+      	 if(hasHF){
+      	 System.out.println("***End of Health Friends List***\n\n");
+      	 System.out.println("Select a friend by Health Friend ID  or '0' to go back");
+      	 selectHF=in.next();
+      	 
+      	 	if(selectHF.matches("0"))
+      		 healthFriendsMenu();
+      	 	
+      	 	else 
+      	 	{	
+      	 		try{
+      	 			isValid= api.checkValidID(selectHF);
+      		
+      	 			if(isValid)
+      	 				existingHFMenu(selectHF);
+      	 			else{
+      	 				System.out.println("\nEnter a valid Patient ID.\n\n");
+      	 				healthFriendsMenu();
+      	 			}
+      		 
+      		 }
+      		 catch(SQLException e)
+      		 {}
+      	 	}
+      	 }
+      	 
+      	 else{
+      		 System.out.println("\n\nYOU HAVE NO HEALTH FRIENDS\n\n");
+      		 healthFriendsMenu(); 
+      	 	}
+           break;
+           
+           
+           
+       case "2":
+           boolean existnewfriend=true;
+      	 try{
+      		 existnewfriend=api.findNewHF(id);
+      	 }
+      	 catch(SQLException e)
+      	 {}
+      	
+      	 Scanner s=new Scanner(System.in);
+  	     String option="y";
+  	     String addFriend="";
+  	     while(option.matches("y")&&existnewfriend)
+  	     {
+  	     System.out.println("\n\nAdd new HealthFriend? (y/n) ");
+  	     option=s.next();
+  	     	switch(option)
+  	     	{
+  	     	case "y":
+  	     		System.out.println("Enter PATIENT ID to add him as your friend: ");
+  	     		addFriend=s.next();
+  	     		try{	     		
+  	     			api.addNewHF(id,addFriend);
+  	     			existnewfriend=api.findNewHF(id);
+  	     			}
+  	     		catch(SQLException e)
+  	     		{}
+  	     		break;
+  	     		
+  	     	case "n": 
+  	     		healthFriendsMenu();
+  	            break;
+  	         
+  	            
+  	     	default:
+  	     		System.out.println("Invalid input. Please Try again.");
+  	     		healthFriendsMenu();
+  	     	}
+  	     
+  	     }
+  	     	healthFriendsMenu();
+  	     	break;
+           
+       case "3":
+    	   messageHFRisk();
+      	   break;
+      	   
+       case "4":
+      	 	patientMenu(id);
+      	 	break;
+      	 
+       default:
+           System.out.println("Invalid input. Please Try again.");
+          
+  	}
+  	 
+
+  }
+    
+    public void messageHFRisk()
     {
-        String selectHF="";
-        boolean hasHF=true;
-        System.out.println("Select an option");
-        System.out.println("1. View existing Health Friends");
-        System.out.println("2. Find a new Health Friend");
-        System.out.println("3. Find a Health Friend at risk");
-        System.out.println("4. Back");
-        String input = in.nextLine().trim();
-
-        switch (input) {
-            case "1":
-
-            try{
-                hasHF=api.viewHF(id);
-            }
-            catch(SQLException e)
-            {}
-
-            if(hasHF) {
-                System.out.println("***End of Health Friends List***\n\n");
-                System.out.println("Select a friend by Health Friend ID  or '0' to go back");
-
-                selectHF=in.nextLine().trim();
-
-                if(selectHF.matches("0"))
-                    healthFriendsMenu();
-                else
-                    existingHFMenu(selectHF);
-            }
-            else
-                healthFriendsMenu(); 
-            break;
-            case "2":
-                boolean existnewfriend=true;
-                try{
-                    existnewfriend=api.findNewHF(id);
-                }
-                catch(SQLException e)
-                {}
-                String option="y";
-                String addFriend="";
-                while(option.matches("y")&&existnewfriend)
-                {
-                    System.out.println("\n\nAdd new HealthFriend? (y/n) ");
-                    option=in.nextLine().trim();
-                    switch(option)
-                    {
-                        case "y":
-                            System.out.println("Enter PATIENT ID to add him as your friend: ");
-                            addFriend=in.nextLine().trim();
-                            try{
-                                api.addNewHF(id,addFriend);
-                                existnewfriend=api.findNewHF(id);
-                            }
-                            catch(SQLException e)
-                            {}
-                            break;
-                        case "n": 
-                        healthFriendsMenu();
-                        break;
-                        default:
-                            System.out.println("Invalid input. Please Try again.");
-                    }
-                }
-                healthFriendsMenu();
-                break;
-            case "3":
-                boolean atRisk=true;
-                try {
-                    atRisk=api.viewRiskHF(id);
-                }
-                catch(SQLException e)
-                {}
-                option="y";
-                String riskFriend="";
-                while(option.matches("y")&&atRisk)
-                {
-                    System.out.println("\n\nSend message to health friend at risk ? (y/n) ");
-                    option=in.nextLine().trim();
-                    switch(option)
-                    {
-                        case "y":
-                            System.out.println("Enter HealthFriend ID to message healthfriend: ");
-                            riskFriend=in.nextLine().trim();
-                            try {
-                                api.msgRiskHF(id,riskFriend);
-                                atRisk=api.viewRiskHF(id);
-                            }
-                            catch(SQLException e)
-                            {}
-                            break;
-                        case "n": 
-                            healthFriendsMenu();
-                            break;
-                        default:
-                            System.out.println("Invalid input. Please Try again.");
-                    }
-                }
-                healthFriendsMenu(); 
-                break;
-            case "4":
-                patientMenu(id);
-                break;
-           default:
-               System.out.println("Invalid input. Please Try again.");
-        }
+    	 Scanner sc=new Scanner(System.in);
+      	 boolean atRisk=true, validID=true;
+      	 try{
+      	atRisk=api.viewRiskHF(id);
+      	 	}
+      	 catch(SQLException e)
+    		{}
+      	
+  	    String option="";
+  	    String riskFriend="", text="";
+  	     
+  	    if(atRisk)
+  	    {
+  	     System.out.println("\n\nSend message to health friend at risk ? (y/n) ");
+  	     option=sc.next();
+  	     	switch(option)
+  	     	{
+  	     	case "y":
+  	     		System.out.println("Enter HealthFriend ID to message healthfriend: ");
+  	     		riskFriend=sc.next();
+  	     		System.out.println("Type a message for your friend (100 chars): ");
+  	     		text=sc.next();
+  	     			     		
+  	     		validID=api.msgRiskHF(id,riskFriend,text);
+  	     		if(!validID)
+  	     		messageHFRisk();
+  	     		else{
+  	     			healthFriendsMenu();
+  	     		}
+  	     		break;
+  	     		
+  	     	case "n": 
+  	     		healthFriendsMenu();
+  	            break;
+  	         
+  	            
+  	     	default:
+  	     		System.out.println("Invalid input. Please Try again.");
+  	     	 try{
+  	         	atRisk=api.viewRiskHF(id);
+  	         	 	}
+  	         	 catch(SQLException e)
+  	       		{}
+  	     	}
+  	    }
     }
 
     public void existingHFMenu(String selectedHF) 
     {
-        System.out.println("Select an option");
-        System.out.println("1. View a list of the friend's active (unviewed) alerts");
-        System.out.println("2. View observations of the friend");
-        System.out.println("3. Back");
-        String input = in.nextLine().trim();
-        switch (input) {
-            case "1":
-                try{
-                api.viewHFAlerts(selectedHF);
-                existingHFMenu(selectedHF);
-                }
-                catch(SQLException e)
-                            {}
-                break;
-            case "2":
-                api.viewHFobs(selectedHF);
-                existingHFMenu(selectedHF);
-                break;
-            case "3":
-                healthFriendsMenu();
-        }
+
+            System.out.println("\n\nSelect an option");
+            Scanner in=new Scanner(System.in);
+            
+            System.out.println("1. View a list of the friend’s active (unviewed) alerts");
+            System.out.println("2. View observations of the friend");
+            System.out.println("3. Back");
+            String input = in.next();
+            
+             switch (input) {
+         case "1":
+                 api.viewAlerts(selectedHF);
+                 existingHFMenu(selectedHF);
+                 break;
+                 
+         case "2":
+                 
+                  api.displayObservations(selectedHF);
+                  existingHFMenu(selectedHF);
+                    
+                 break;
+                 
+         case "3":
+                 healthFriendsMenu();
+                 
+             }
     }
 }
