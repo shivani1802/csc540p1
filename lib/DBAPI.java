@@ -250,8 +250,9 @@ public class DBAPI {
 
     public boolean addAssoc(String type, String illness) {
         //invalid illness type specified
-        if (!Arrays.asList(ILLNESS_LIST).contains(illness) && illness != "General")
+        if (!(Arrays.asList(ILLNESS_LIST).contains(illness) || illness.equals("General"))) {
             return false;
+        }
         ResultSet rs;
         try {
             rs = stmt.executeQuery("SELECT COUNT(*) FROM type_assoc_ill AI WHERE AI.type = '" + type +
@@ -265,10 +266,11 @@ public class DBAPI {
                 return false; //obs type not defined
 
             if(illness.equals("General")) {
-                stmt.executeQuery("UPDATE type_assoc_ill AI SET AI.illness = '" + illness +
-                    "' WHERE AI.type = '" + type + "'");
+                stmt.executeQuery("DELETE FROM type_assoc_ill WHERE type = '" + type + "'");
+                stmt.executeQuery("INSERT INTO type_assoc_ill VALUES ('" + illness + "','" + type + "')");
+                System.out.println("after");
                 //must delete multiple duplicate resulting general illness assoc's (going from specific to general)
-            }/*
+            }
             else {
                 rs = stmt.executeQuery("SELECT * FROM type_assoc_ill AI WHERE AI.type = '" + type + "' AND AI.illness = 'General'");
                 //if obs type is associated with general patient class
@@ -277,9 +279,9 @@ public class DBAPI {
                         "' WHERE AI.type = '" + type + "' AND AI.illness = 'General'");
                 }
                 else {
-                    
+                    stmt.executeQuery("INSERT INTO type_assoc_ill VALUES ('" + illness + "', '" + type + "')");
                 }
-            }*/
+            }
         }
         catch (Throwable err) {
             conn = null;

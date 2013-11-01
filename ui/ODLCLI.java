@@ -237,9 +237,11 @@ public class ODLCLI
         System.out.print("Enter a Patient/illness Class to associate the observation\n" +
             "    type \"" + type + "\" with (N/A for General): ");
         String illness = in.nextLine().trim();
+        if (illness.equals("N/A"))
+            illness = "General";
         if(api.addNewType(type, category, additionalInfo, illness)) {
             System.out.println("Association between type \"" + type + "\" and patient class \"" +
-                illness + "\" successfully added!");
+                illness + "\" successfully added (or already exists)!");
         }
         else
             System.out.println("Failed to add association.");
@@ -259,7 +261,7 @@ public class ODLCLI
             illness = "General";
         if (api.addAssoc(type, illness)) { //associate illness with type, overwrite general.  Else, create new?
             System.out.println("Association between type \"" + type + "\" and patient class \"" +
-                illness + "\" successfully added!");
+                illness + "\" successfully added (or already exists)!");
         }
         else
             System.out.println("Failed to add association.");
@@ -293,7 +295,7 @@ public class ODLCLI
                     break;
                 default:
                     System.out.println("Invalid input. Please Try again.");
-                    patientMenu(id);
+                    healthProfMenu();
             }
         }
     }
