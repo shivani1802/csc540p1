@@ -90,7 +90,7 @@ public class DBAPI {
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                 "VALUES ('Temperature','Physiological','Amount in Fahrenheit')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
-                "VALUES ('Diet','Behavioral','What was consumed and Amount in sevings')");
+                "VALUES ('Diet','Behavioral','What was consumed, Amount in servings')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                 "VALUES ('Weight','Physiological','Amount in Pounds')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
