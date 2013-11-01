@@ -41,23 +41,37 @@ public class DBAPI {
         System.out.println("Dropping all tables.");
         try
         {
+        	conn.setAutoCommit(false);
           stmt.executeUpdate("drop table Makes_Observation");
           stmt.executeUpdate("drop table Has_Illness");
           stmt.executeUpdate("drop table Observations");
+          stmt.executeUpdate("drop table Threshold_check");
           stmt.executeUpdate("drop table Alerts");
           stmt.executeUpdate("drop table HAS_HF");
           stmt.executeUpdate("drop table patient_info");
           stmt.executeUpdate("drop table type_assoc_ill");
           stmt.executeUpdate("drop table Observation_Type");
           stmt.executeUpdate("drop table HP_INFO");
+          conn.commit();
         }
         catch(Throwable err) {
-            conn = null;
+       
+                
+                System.err.print("Transaction is being rolled back");
+                try {
+					conn.rollback();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+           // conn = null;
             System.out.println("Not dropped table" + err);
+            return false;
         }
-        //insert SQL to drop all related tables
         return true;
-    }
+    }  
+        //insert SQL to drop all related tables
+        
+    
 
     public boolean initTables() {
         System.out.println("Initializing tables with sample data.");
@@ -116,11 +130,8 @@ public class DBAPI {
                 "VALUES ('scooper', 'COPD','Oxygen Saturation')");
             //System.out.println(" inserted has illness");
 
-            stmt.executeUpdate("create table Alerts" +
-                "(Type varchar(40), Threshhold varchar(50), Message varchar(100), primary key (Type))");
-            //System.out.println("created alerts");
-            stmt.executeUpdate("Insert into Alerts (Type,Threshhold,Message)"+
-                "values ('Diet',null,null)");
+            stmt.executeUpdate("create table Threshold_check" +
+              		 "(Type varchar(40), AdditionalInfo varchar(100),Threshold varchar(50))");
             //System.out.println(" inserted alerts");
 
             stmt.executeUpdate("create table Observations"+
@@ -128,7 +139,7 @@ public class DBAPI {
                 "AdditionalInfo varchar(100), primary key (OId),foreign key (Type) references Alerts(Type))");
             //System.out.println("not inserted table observations new");
             //stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observtion,time_of_observation,AdditionalInfo)"+
-            //"values ('O1', 'Diet', to_date('01-01-2011','dd-mm-yyyy'),to_date('18:12:02', 'HH24:MI:SS'),'What was consumed and amount in servings: egg 1, orange Â½, toast 1, margarine 1')");
+            //"values ('O1', 'Diet', to_date('01-01-2011','dd-mm-yyyy'),to_date('18:12:02', 'HH24:MI:SS'),'What was consumed and amount in servings: egg 1, orange ½, toast 1, margarine 1')");
             stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observation,time_of_observation,AdditionalInfo)"+
                 "values ('O1', 'Diet','01-01-2011','18:12:02','What was consumed, amount that was consumed')");
 
@@ -172,58 +183,84 @@ public class DBAPI {
             System.out.println("querry nt executed" + err);
         }
     }
-    public void enterObservation( String patientId,String Obs_Type,String obsDate,String obsTime)
-    {
-        //	System.out.println("hello");
-        int j=0,k=0,counter=0;
-        String Obs_Data=null;
-        Scanner sc= new Scanner(System.in);
-        try
-        {
-            rs = stmt.executeQuery("select AdditionalInfo from Observation_Type where Type ='"+Obs_Type+"'");
-            //rs = stmt.executeQuery("select AdditionalInfo from Observation_Type where Type ='Diet' and Illness ='General' or Illness in ( SELECT Illness FROM Has_Illness where Patient_Id= 'ggeorge')");
-            while (rs.next()) {
-                String AdditionalInfo = rs.getString("AdditionalInfo");
-                String [] data= AdditionalInfo.split(",");
-
-                while(j!=data.length)
-                {
-                    System.out.println("Enter "+ data[j]);
-                    Obs_Data+= ""+ sc.next();
-                    j++;
-                }
-            }
-            System.out.println("Before : "+counter);
-            count = stmt.executeQuery("select count(*) as noOfRows from Observations");
-            System.out.println("Before parsing : "+counter);
-            while (count.next()) {
-                counter= Integer.parseInt(count.getString("noOfRows"));
-            }
-            counter+=1;
-            //System.out.println(counter);
-            stmt.executeUpdate("Insert into Observations "+
-                "values ('O"+counter+"','"+Obs_Type+"','"+ obsDate +"','"+ obsTime + "','"+ Obs_Data +"')");
-            System.out.println(patientId);
-            //do we need a trigger instead of insert i makes here ??
-
-            //If no trigger how to enter corresponding oid..that would be an issue 
-
-        stmt.executeUpdate("Insert into Makes_Observation (pId, OId, Date_of_record ,time_of_record)"+
-            "values ('"+patientId+"','O"+counter+"', sysdate,'18:12:02')"); // here date and time are supposed to be system date and time as i trigger below but for the time being we have this
-        System.out.println("inserted n makes");
-        /*
-        create or replace Trigger MakesObservationInsert
-        After Inser on Observations
-        Referencing new row as NewRow
-        insert into Makes_Observaton (pId, OId, Date_of_record ,time_of_record)
-        values (patient_Id, NewRow.OId, TO_CHAR(SYSDATE,'dd-Mon-yyy'),TO_CHAR(SYSDATE,' hh:mi:ss PM'))
-        */
-        }
-        catch(Throwable err) {
-            conn = null;
-            System.out.println("querry nt executed" + err);
-        }
+	public void enterObservation( String patientId,String Obs_Type,String obsDate,String obsTime)
+  	{
+  	//	System.out.println("hello");
+  		int j=0,k=0,counter=0;
+  		String Obs_Data=null;
+  		boolean flag=false;
+  		Scanner sc= new Scanner(System.in);
+    try  
+   {
+    	rs = stmt.executeQuery("select distinct type from Observation_Type where Illness ='General' or Illness in ( SELECT Illness FROM Has_Illness where Patient_Id= '"+ patientId +"')");
+    	while(rs.next()){
+    		if((rs.getString("type").equals(Obs_Type)))
+    			flag=true;
+    	}
+    if(flag==false){
+    
+    	System.out.println("Type does not exist. Please select the other option or enter the new Type");
+    	//api.recordObservation(patientId);
+    	return;
     }
+    
+    System.out.println("Hello");
+    stmt.executeQuery("create or replace TRIGGER MakesObservationInsert"+    //This trigger working now finally
+			  " After Insert on Observations"+
+			" REFERENCING NEW AS newrow"+
+			  " for each row"+
+			  " insert into Makes_Observation (pId, OId, Date_of_record ,time_of_record)"+
+			 " values ('"+patientId+"',:newrow.OId, sysdate,'18:12:02')");
+    	
+    count = stmt.executeQuery("select count(*) as noOfRows from Observations");
+	  System.out.println("Before parsing : "+counter);
+	  while (count.next()) {
+	   counter= Integer.parseInt(count.getString("noOfRows"));
+	  }
+	  counter+=1;
+    	  
+	rs = stmt.executeQuery("select distinct AdditionalInfo from Observation_Type where Type ='"+Obs_Type+"'");
+    	 // rs = stmt.executeQuery("select AdditionalInfo from Observation_Type where Type ='Diet' and Illness ='General' or Illness in ( SELECT Illness FROM Has_Illness where Patient_Id= 'ggeorge')");
+	while (rs.next()) {
+	    String AdditionalInfo = rs.getString("AdditionalInfo");
+	  String [] data= AdditionalInfo.split(",");
+	  
+	  while(j!=data.length)
+	  {
+		  System.out.println("Enter "+ data[j]);
+		  Obs_Data = sc.next();
+		  stmt.executeUpdate("Insert into Observations "+
+				  "values ('O"+counter+"','"+Obs_Type+"','"+ obsDate +"','"+ obsTime + "','"+data[j]+"','"+ Obs_Data +"','FALSE')");
+		  j++;	
+		  counter++;
+	  }
+	}
+	System.out.println("Before : "+counter);
+	 
+	//  System.out.println(counter);
+	 
+	  
+	  
+	  
+	  System.out.println(patientId);
+	  
+	    // do we need a trigger instead of insert i makes here ??
+	  
+	 //If no trigger how to enter corresponding oid..that would be an issue 
+	  
+	//  stmt.executeUpdate("Insert into Makes_Observation (pId, OId, Date_of_record ,time_of_record)"+
+        	//	"values ('"+patientId+"','O"+counter+"', sysdate,'18:12:02')"); // here date and time are supposed to be system date and time as i trigger below but for the time being we have this
+	 System.out.println("inserted n makes");
+	  
+	
+	
+	}
+	  catch(Throwable err) {
+          conn = null;
+          System.out.println("querry nt executed" + err);
+          
+          }
+	 }
 
     public void displayObservations(String patientId) {
         int i=0;
@@ -291,6 +328,7 @@ public class DBAPI {
 
     public boolean addNewType(String type,String category,String addtionalInformation, String illness)
     {
+    	int j=0;
         boolean flag=true; //a more descriptive name would be good here
         try
         {   //To check if the type already exists
@@ -306,6 +344,15 @@ public class DBAPI {
                 rs = stmt.executeQuery("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                     "VALUES ('" + type + "','" + category + "','" + addtionalInformation + "')" );
                 rs = stmt.executeQuery("INSERT INTO type_assoc_ill VALUES ('" + illness + "','" + type + "')");
+                String [] data= addtionalInformation.split(",");
+  			  
+  			  while(j!=data.length)
+  			  {
+  				//  System.out.println("Enter "+ data[j]);
+  				  stmt.executeQuery("INSERT INTO Threshold_check (type,AdditionalInfo,Threshold)"+
+  			        		"values ('"+type+"','"+data[j]+"',null)");   	//This insertion is for patients , in case of physician you will have to modify Threshold according to the input
+  				  j++;			  
+  			  }
             }
         }
         catch(Throwable err) {
@@ -372,39 +419,45 @@ public class DBAPI {
              {}
         return type;
     }
+    
     public boolean viewHF(String uname) throws SQLException
     {
-        String query_hf="SELECT DISTINCT patient_name, p.patient_id " +
-                        "FROM PATIENT_INFO p, HAS_HF h " +
-                        "WHERE h.patient_id='"+uname+"' AND h.hf_id=p.patient_id";
-        boolean hasHF=true;
-        Statement stmt = conn.createStatement();
-
-        try {
-            ResultSet rs_hf = stmt.executeQuery(query_hf);
-
-            if(!rs_hf.next())
-            {
-                System.out.println("\n\nYOU HAVE NO HEALTH FRIENDS\n\n");
-                hasHF=false;
-            }
-
-            else {
-                rs_hf = stmt.executeQuery(query_hf);
-                int count=1;
-                System.out.println("\n\n\nYOUR HEALTHFRIENDS\n");
-                 while (rs_hf.next())
-                 {
-                     String name = rs_hf.getString("patient_name");
-                     String id = rs_hf.getString("patient_id");
-                     System.out.println("\n"+count+". "+id+"\t\t"+name);
-                     count++;
-                }
-            }
-        } catch (SQLException e ) 
-        {}
-        return hasHF;
+    	String query_hf="SELECT DISTINCT patient_name, p.patient_id FROM PATIENT_INFO p, HAS_HF h "
+    			+ "WHERE h.hf_id=p.patient_id AND h.patient_id='"+uname+"'"
+    			+ "union "
+    			+ "SELECT DISTINCT patient_name, p.patient_id FROM PATIENT_INFO p, HAS_HF h "
+    			+ "WHERE h.hf_id='"+uname+"' AND h.patient_id=p.patient_id"; 
+ ;
+    	
+    	boolean hasHF=true;
+    	Statement stmt = conn.createStatement();
+    	
+    	try {	
+    		ResultSet rs_hf = stmt.executeQuery(query_hf);
+    		
+    		if(!rs_hf.next())
+    			hasHF=false;
+    		
+    		
+    		else{
+    				rs_hf = stmt.executeQuery(query_hf);
+    				int count=1;
+    				System.out.println("\n\n\nYOUR HEALTHFRIENDS\n");
+    				while (rs_hf.next()) 
+    					{
+    						String name = rs_hf.getString("patient_name");
+    						String id = rs_hf.getString("patient_id");
+    						System.out.println("\n"+count+". "+id+"\t\t"+name);
+    						count++;
+    					}
+    			}
+    	     
+    	 	} catch (SQLException e ) 
+    	 		{}
+    	return hasHF;
+   
     }
+    
     public boolean findNewHF(String uname) throws SQLException
     {
         boolean existnewfriend=true;
@@ -438,12 +491,13 @@ public class DBAPI {
                     String name=rs_hf.getString("patient_name");
                     System.out.println("\n"+count+". "+id+"\t"+name);
                     count++;
-                }
-            }
+                		}
+            	}
         } catch (SQLException e ) {
-        }
+        	}
         return existnewfriend;
     }
+    
     public void addNewHF(String uname, String addFriend) throws SQLException
     {
         Statement stmt = conn.createStatement();
@@ -467,83 +521,167 @@ public class DBAPI {
             {}
         }
     }
+    
+  //modify query to find alerts for only health friend
     public boolean viewRiskHF(String uname) throws SQLException
-    {
-        boolean atRisk=true;
-        Statement stmt = conn.createStatement();
-        String query_riskHF="select patient_name, p.patient_id "
-            + "from patient_info p, alerts a "
-            + "where p.patient_id=a.patient_id and a.patient_id<>'"+uname+"' "
-            + "group by p.patient_name, p.patient_id "
-            + "having count(a_id)>2";
-
-        ResultSet rs_riskHF = stmt.executeQuery(query_riskHF);
-        if(!rs_riskHF.next())
-        {
-             System.out.println("\n\nNo health friends at risk currently.\n");
-             atRisk=false;
-             rs_riskHF.close();
-        }
-        else {
-            rs_riskHF = stmt.executeQuery(query_riskHF);
-            int count=1;
-            System.out.println("\n\n\nLIST OF HEALTH FRIENDS AT RISK\n\n");
-            while (rs_riskHF.next()) {
-                String name=rs_riskHF.getString("patient_name");
-                String id=rs_riskHF.getString("patient_id");
-                System.out.println("\n"+count+". "+id+"\t"+name);
-                count++;
-            }
-        }
-        return atRisk;
-    }
-    public void msgRiskHF(String uname, String riskFriend)
-    {
-        //create message table to store msg
-        //store msg_id,from (uname), to (riskFriend)
-        System.out.println("Msg "+ riskFriend);
-    }
-    public void viewHFAlerts(String uname) throws SQLException
-    {
-        //query for displaying friend's alerts
-        String query_hf="SELECT a_id, description"
-            + " FROM alerts "
-            + "WHERE patient_id='"+uname+"'";
-
-        Statement stmt = conn.createStatement();
-
-        try {
-            ResultSet rs_hf = stmt.executeQuery(query_hf);
-            int count=1;
-            System.out.println("\n\n\nHealth Friend's Alerts\n");
-            while (rs_hf.next()) 
+    {        
+            boolean atRisk=true;
+            Statement stmt = conn.createStatement();
+            String query_riskHF="select p.patient_name from "
+            		+ "observations o, makes_observation m, patient_info p"
+            		+ " where o.oid=m.oid and p.patient_id=m.pid "
+            		+ "and o.ISACTIVE ='TRUE' AND (sysdate-date_of_record)>7";
+        
+            ResultSet rs_riskHF = stmt.executeQuery(query_riskHF);
+            if(!rs_riskHF.next())
             {
-                 String a_id = rs_hf.getString("a_id");
-                 String desc = rs_hf.getString("description");
-                 System.out.println("\n"+count+". "+a_id+"\t"+desc);
-                 count++;
-            }
-        } catch (SQLException e )
-        {}
+                    System.out.println("\n\nNo health friends at risk currently.\n");
+                    atRisk=false;
+                    rs_riskHF.close();
+            }        
+                
+            else{
+                    rs_riskHF = stmt.executeQuery(query_riskHF);
+                    int count=1;
+                    System.out.println("\n\n\nLIST OF HEALTH FRIENDS AT RISK\n\n");
+       
+                    while (rs_riskHF.next()) {
+                    		String name=rs_riskHF.getString("patient_name");
+                            String id=rs_riskHF.getString("patient_id");
+                            System.out.println("\n"+count+". "+id+"\t"+name);
+                            count++;
+                            }
+                         }
+            return atRisk;
     }
-
-    public void viewHFobs(String uname)
+    
+ 
+    public boolean msgRiskHF(String uname, String riskFriend, String text)
     {
-        //Show Health friend's Observations from observation table 
-         System.out.println("No observations for now..have to check observations table");
+   	 		boolean validID=true;
+   	 		try{
+        //check if the entered id is valid         
+   	 		String query_check="select patient_name "
+                                       + "from patient_info "
+                                       + "where patient_id='"+riskFriend+"'";
+   	 		ResultSet rs_check = stmt.executeQuery(query_check);
+   	 		if(!rs_check.next())
+   	 		{
+   	 				System.out.println("Enter a valid ID. Try again.");
+   	 				validID=false;
+   	 		}
+   	 
+   	 		else{
+   	 				rs=stmt.executeQuery("insert into messages values('"+uname+"','"+riskFriend+"',sysdate,'"+text+"')");
+   	 				System.out.println("Messaged sent to "+ riskFriend);
+   	 			}
+   	 		}
+            
+            catch(Throwable err) {
+                	conn = null;
+                	System.out.println("querry nt executed" + err);
+                
+                }
+   	 return validID;
     }
+    
+    public void viewAlerts(String id) //* added clause for empty set
+ 	{
+  		int i=0;
+         try
+         {
+        	 rs = stmt.executeQuery("select type from Observations o,makes_observation m where o.oid=m.oid and m.pId='"+id+"' and isactive = 'True'");  
+        	 if(!rs.next())
+        		 System.out.println("No Alerts.\n");
+   	
+        	 else{
+        		 rs = stmt.executeQuery("select type from Observations o,makes_observation m where o.oid=m.oid and m.pId='"+id+"' and isactive = 'True'");  
+        
+        		 while (rs.next()) {
+		    
+        			 System.out.println(i+". Your " + rs.getString("type")+"is in the range of Risk");
+        			 i++;
+        		 	} 
+        		 stmt.executeQuery("update Observations o set o.isactive='False' where  o.isactive = 'True'and exists (select pid from makes_observation m where m.pid='"+id+"' and  o.oid=m.oid)");
+        	 	}
+ 
+         }
+   	  	catch(Throwable err) {
+             conn = null;
+             System.out.println("querry nt executed" + err);
+             }
 
-    //maybe not needed, left in from merge
-    public void viewObs(String uname)
+ 	}
+    
+    
+    public void viewMessages(String id)
+  	{
+   		int i=1;
+          try
+          {
+        	  rs = stmt.executeQuery("select p.patient_name, m.text, m.on_date from messages m, patient_info p"
+    			+ " where m.from_pId=p.patient_id and m.to_friend='"+id+"'");  
+        	  System.out.println("\tFROM\t\t MESSAGE\t\tDATE");
+        	  while (rs.next()) {
+        		  System.out.println(i+". " + rs.getString("patient_name")+"\t\t"+rs.getString("text")+"\t\t"+rs.getString("on_date"));
+        		  i++;
+        	  		}  
+          }
+    	  catch(Throwable err) {
+              conn = null;
+              System.out.println("Querry not executed" + err);
+              }
+    }
+    
+
+    public void createPatient(String name, String patientID, String password, String address, int age, String sex,String publicStatus) throws SQLException
     {
-        //query for displaying observations based on the pid(uname)
-    }
+   	 	String query_hp="INSERT into PATIENT_INFO(PATIENT_NAME, PATIENT_ID, PASSWORD, ADDRESS, AGE, SEX, PUBLICSTATUS) "
+   	 		+ "values('"+name+"','"+patientID+"','"+password+"','"+address+"',"+age+",'"+sex+"','"+publicStatus+"')";
 
-    public void viewMyAlerts(String uname)
+   	 Statement stmt = conn.createStatement();
+
+   	 try {        
+   		 stmt.executeQuery(query_hp);
+   		 System.out.println("You are now a registered. Login to continue..");
+   	 	} catch (SQLException e ) 
+   	 		{
+   	 			System.out.println("You could not be registered. Please try again..");
+   	 		}
+   	 }
+    
+    
+    public void createHP(String name, String hpID, String password, String clinic,String description) throws SQLException
     {
-        //query for displaying alerts based on the pid(uname)
-    }
+   	 String query_hp="INSERT into HP_INFO(NAME, HP_ID, PASSWORD, CLINIC, ROLE) "
+    	 		+ "values('"+name+"','"+hpID+"','"+password+"','"+clinic+"','"+description+"')";
 
+   	 Statement stmt = conn.createStatement();
+
+   	 try {        
+   		 stmt.executeQuery(query_hp);
+   		 System.out.println("You are now a registered. Login to continue..");
+   	 	 } catch (SQLException e ) 
+   	 	 	{
+   	 		 	System.out.println("You could not be registered. Please try again..");
+   	 	 	}
+   	 }
+    
+    
+    public boolean checkValidID(String selectedHF) throws SQLException
+    {
+   	 boolean isValid=true;
+   	 String query_check="select patient_name "
+                + "from patient_info "
+                + "where patient_id='"+selectedHF+"'";
+   	 ResultSet rs_check = stmt.executeQuery(query_check);
+   	 if(!rs_check.next())
+   	 {	
+   		 isValid=false;
+   	 }
+   	return isValid;
+    }
+    
     public ArrayList<String> getObsTypes() {
         ArrayList<String> types = new ArrayList<String>();
         try {
