@@ -110,6 +110,13 @@ public class DBAPI {
                 "VALUES ('Oxygen Saturation','Physiological','the fraction of hemoglobin that is saturated by oxygen, e.g. 95% ?')");
             //System.out.println("inserted table oBS");
 
+            stmt.executeUpdate("CREATE TABLE Illness(Illness varchar (40), primary key(Illness))");
+            stmt.executeUpdate("INSERT INTO Illness VALUES ('COPD')");
+            stmt.executeUpdate("INSERT INTO Illness VALUES ('HIV')");
+            stmt.executeUpdate("INSERT INTO Illness VALUES ('General')");
+            stmt.executeUpdate("INSERT INTO Illness VALUES ('High Risk Pregnancy')");
+            stmt.executeUpdate("INSERT INTO Illness VALUES ('Obesity')");
+
             stmt.executeUpdate("create table type_assoc_ill" +
                 "(Illness varchar (40), Type varchar(40), primary key (Illness, Type), foreign key (Type) references Observation_Type(Type))");
             stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('HIV', 'Temperature')");
