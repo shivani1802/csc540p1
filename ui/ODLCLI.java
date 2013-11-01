@@ -557,7 +557,7 @@ public class ODLCLI
             System.out.println("\n\nSelect an option");
             Scanner in=new Scanner(System.in);
             
-            System.out.println("1. View a list of the friend’s active (unviewed) alerts");
+            System.out.println("1. View a list of the friend's active (unviewed) alerts");
             System.out.println("2. View observations of the friend");
             System.out.println("3. Back");
             String input = in.next();
