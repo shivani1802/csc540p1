@@ -1,7 +1,6 @@
 package lib;
 import java.sql.*;
-import java.util.Scanner;
-import java.util.Arrays;
+import java.util.*;
 
 public class DBAPI {
 
@@ -543,5 +542,47 @@ public class DBAPI {
     public void viewMyAlerts(String uname)
     {
         //query for displaying alerts based on the pid(uname)
+    }
+
+    public ArrayList<String> getObsTypes() {
+        ArrayList<String> types = new ArrayList<String>();
+        try {
+            ResultSet rs_Types = stmt.executeQuery("SELECT Type FROM Observation_type");
+            while(rs_Types.next())
+                types.add(rs_Types.getString("Type"));
+        }
+        catch (SQLException e) {
+        }
+        return types;
+    }
+
+    public ArrayList<String> getPatientsByObsType(String type) {
+        ArrayList<String> names = new ArrayList<String>();
+        try {
+            ResultSet rs_names = stmt.executeQuery("SELECT DISTINCT H.Patient_Id FROM Has_Illness H WHERE H.Illness IN " + 
+                "(SELECT T.Illness FROM type_assoc_ill T WHERE T.Type = '" + type + "')");
+            while(rs_names.next())
+                names.add(rs_names.getString("Patient_Id"));
+        }
+        catch (SQLException e) {
+        }
+        return names;
+    }
+
+    public ArrayList<String> getPatientsByName(String name) {
+        //TODO
+        return null;
+    }
+
+    public ArrayList<String> getPNames() {
+        ArrayList<String> names = new ArrayList<String>();
+        try {
+            ResultSet rs_names = stmt.executeQuery("SELECT Patient_name FROM Patient_Info");
+            while(rs_names.next())
+                names.add(rs_names.getString("Patient_name"));
+        }
+        catch (SQLException e) {
+        }
+        return names;
     }
 }

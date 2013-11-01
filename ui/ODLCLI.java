@@ -1,5 +1,5 @@
 package ui;
-import java.util.Scanner;
+import java.util.*;
 import java.sql.SQLException;
 import lib.*;
 
@@ -9,13 +9,15 @@ import lib.*;
 
 public class ODLCLI
 {
-    static final String HP = "HP";
-    static final String PATIENT = "patient";
+    static final String HP = "HP",
+                        PATIENT = "patient";
     DBAPI api;
     String id="";
+    Scanner in;
 
     public ODLCLI() 
     {
+        in = new Scanner(System.in);
         preStart();
         startMenu();
     }
@@ -29,9 +31,8 @@ public class ODLCLI
         System.out.println("Please enter an oracle DB " + 
                             "username and password.\n");
 
-        Scanner sc = new Scanner(System.in);
         System.out.println("Username (ie \"jsmith\"): ");
-        String user = sc.nextLine().trim();
+        String user = in.nextLine().trim();
         //System.out.print("Password: ");
         //String passwd = sc.nextLine().trim();
         //Use hidden password - comment out only for local testing
@@ -49,9 +50,8 @@ public class ODLCLI
     public void promptReinit() {
         System.out.print("\nWould you like to delete any existing tables and " + 
                     "re-initialize tables with the sample data? (y/n)");
-        Scanner sc = new Scanner(System.in);
-        String in = sc.nextLine().trim();
-        switch (in) {
+        String input = in.nextLine().trim();
+        switch (input) {
             case "y":
                 api.dropTables();
                 api.initTables();
@@ -66,7 +66,6 @@ public class ODLCLI
 
     public void startMenu()
     {
-        Scanner in = new Scanner(System.in);
         System.out.println("\n\n\n===== Observations of Dailing Living -- Start Menu =====\n");
         System.out.println("Available Options:");
         System.out.println(" 1.  Login");
@@ -93,10 +92,9 @@ public class ODLCLI
     {
         String role="";
         //Take username and password from the user
-        Scanner s=new Scanner(System.in);
         String uname="", password="";
         System.out.print("\nUsername: ");
-        uname=s.nextLine().trim();
+        uname=in.nextLine().trim();
         id=uname;
         //System.out.print("Password: ");
         //Use hidden password - comment out only for local testing
@@ -122,10 +120,9 @@ public class ODLCLI
         }
     }
     public void invalidUserLogin() {
-        Scanner s = new Scanner(System.in);
         System.out.println("\nLogin incorrect. Would you like to try again?");
         System.out.print("1. Try again\n2. Create User\n3. Back\nInput: ");
-        String choice = s.nextLine().trim();
+        String choice = in.nextLine().trim();
         if (choice.equals("1"))
             login();
         else if (choice.equals("2"))
@@ -153,7 +150,6 @@ public class ODLCLI
     {
         while(true)
         {
-            Scanner in = new Scanner(System.in);
             System.out.println("\n\n\n\n===== Observations of Dailing Living -- Observation Menu =====\n");
             System.out.println("Available Options:");
             System.out.println(" 1.  Enter Observations");
@@ -192,16 +188,15 @@ public class ODLCLI
     public void recordObservation()
     {
         String obsType,obsDate,obsTime;
-        Scanner sc = new Scanner(System.in);
         System.out.println("Enter observations for the following available types based on your Illness :");
         api.observationMenu("ggeorge");
         System.out.print("Enter your type of Observation : ");
-        obsType= sc.nextLine().trim();
+        obsType= in.nextLine().trim();
         System.out.println(obsType +":\nEnter :");
         System.out.println("Enter Date of Observation in mm/dd/yyyy format :");
-        obsDate= sc.nextLine().trim();
+        obsDate= in.nextLine().trim();
         System.out.println("Enter Time of Observation in HH:mm:ss format :");
-        obsTime= sc.nextLine().trim();
+        obsTime= in.nextLine().trim();
         api.enterObservation("ggeorge",obsType,obsDate,obsTime);
     }
 
@@ -212,13 +207,12 @@ public class ODLCLI
 
     public void addObservationType(String userType)
     {
-        Scanner sc = new Scanner(System.in);
         System.out.print("Enter your Type of Observation: ");
-        String type= sc.nextLine().trim();
+        String type= in.nextLine().trim();
         System.out.print("Enter your Category of Observation: ");
-        String category= sc.nextLine().trim();
+        String category= in.nextLine().trim();
         System.out.print("Enter your Additional Information about the Observation: ");
-        String additionalInfo= sc.nextLine().trim();
+        String additionalInfo= in.nextLine().trim();
         if (userType.equals(PATIENT)) {
             if (api.addNewType(type, category, additionalInfo, "General"))
                 System.out.println("New General observation type successfully added!");
@@ -233,12 +227,11 @@ public class ODLCLI
      *  For associating an observation type with an illness at the time of insertion.
      */
     public void addAssocTypeIll(String type, String category, String additionalInfo) {
-        Scanner in = new Scanner(System.in);
         System.out.print("Enter a Patient/illness Class to associate the observation\n" +
             "    type \"" + type + "\" with (N/A for General): ");
         String illness = in.nextLine().trim();
         if (illness.equals("N/A"))
-            illness = "General";
+             illness = "General";
         if(api.addNewType(type, category, additionalInfo, illness)) {
             System.out.println("Association between type \"" + type + "\" and patient class \"" +
                 illness + "\" successfully added (or already exists)!");
@@ -251,7 +244,6 @@ public class ODLCLI
      *  For adding an association to a pre-existing type of observation.
      */
     public void addAssocTypeIll() {
-        Scanner in = new Scanner(System.in);
         System.out.println("Add an association between observation type and illness: ");
         System.out.print("Observation type: ");
         String type = in.nextLine().trim();
@@ -271,7 +263,6 @@ public class ODLCLI
     {
         while(true)
         {
-            Scanner in = new Scanner(System.in);
             System.out.println("\n\n\n\n===== Observations of Dailing Living -- Health Professional Menu =====\n");
             System.out.println("Available Options:");
             System.out.println(" 1.  Add a New Observation Type");
@@ -288,15 +279,102 @@ public class ODLCLI
                     addAssocTypeIll();
                     break;
                 case "3":
-                    //viewPatients();
+                    viewPatients();
                     break;
                 case "4":
                     startMenu();
                     break;
                 default:
-                    System.out.println("Invalid input. Please Try again.");
+                    System.out.println("Invalid input. Please try again.");
                     healthProfMenu();
             }
+        }
+    }
+
+    public void viewPatients() {
+        System.out.println("\nView Patients: ");
+        System.out.println(" 1.  View by Observation Type");
+        System.out.println(" 2.  View by Patient Name");
+        System.out.println(" 3.  Back");
+        System.out.print("\nInput: ");
+        String input = in.nextLine().trim();
+        switch (input) {
+            case "1":
+                displayPatientsByObsType();
+                break;
+            case "2":
+                displayPatientsByName();
+                break;
+            case "3":
+                break;
+            default:
+                System.out.println("Invalid input. Please try again.");
+                viewPatients();
+        }
+    }
+
+    public void displayPatientsByObsType() {
+        int type_count = 0;
+        ArrayList<String> o_types = api.getObsTypes();
+        System.out.println("View by Observation Type:");
+        for(String type : o_types) {
+            type_count++;
+            System.out.println(" " + type_count + ".  " + type);
+        }
+        System.out.println(" " + (type_count+1) + ".  Back");
+        System.out.println("\nInput: ");
+        Integer i_in = tryParse(in.nextLine().trim());
+        if (i_in != null && i_in <= type_count+1 && i_in > 0) {
+            if (i_in != type_count+1) {
+                ArrayList<String> names = api.getPatientsByObsType(o_types.get(i_in-1));
+                System.out.println("\nList of patients which have been assigned the observation type \"" + o_types.get(i_in-1) + "\":");
+                for (String name : names)
+                    System.out.println("  " + name);
+                System.out.println("\nEnd of patients list");
+            }
+            viewPatients();
+        }
+        else {
+            System.out.println("Invalid input. Please try again.");
+            displayPatientsByObsType();
+        }
+    }
+
+    public Integer tryParse(String input) {
+        try {
+            return Integer.parseInt(input);
+        }
+        catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    public boolean checkPName(String name) {
+        return api.getPNames().contains(name);
+    }
+
+    public void displayPatientsByName() {
+        System.out.println("View by Patient Name:");
+        System.out.println("  1.  Enter patient name");
+        System.out.println("  2.  Back");
+        Integer i_in = tryParse(in.nextLine().trim());
+        if (i_in == 1) {
+            System.out.print("Name: ");
+            String name = in.nextLine().trim();
+            if(checkPName(name)) {
+                System.out.println("Patient Data/Observations by Observation Type for patient \"" + name + "\":");
+                //TODO.
+            }
+            else {
+                System.out.println("Invalid name");
+                viewPatients();
+            }
+        }
+        else if (i_in == 2)
+            viewPatients();
+        else {
+            System.out.println("Invalid input. Please try again.");
+            displayPatientsByName();
         }
     }
 
@@ -305,7 +383,6 @@ public class ODLCLI
         String selectHF="";
         boolean hasHF=true;
         System.out.println("Select an option");
-        Scanner in=new Scanner(System.in);
         System.out.println("1. View existing Health Friends");
         System.out.println("2. Find a new Health Friend");
         System.out.println("3. Find a Health Friend at risk");
@@ -342,18 +419,17 @@ public class ODLCLI
                 }
                 catch(SQLException e)
                 {}
-                Scanner s=new Scanner(System.in);
                 String option="y";
                 String addFriend="";
                 while(option.matches("y")&&existnewfriend)
                 {
                     System.out.println("\n\nAdd new HealthFriend? (y/n) ");
-                    option=s.nextLine().trim();
+                    option=in.nextLine().trim();
                     switch(option)
                     {
                         case "y":
                             System.out.println("Enter PATIENT ID to add him as your friend: ");
-                            addFriend=s.nextLine().trim();
+                            addFriend=in.nextLine().trim();
                             try{
                                 api.addNewHF(id,addFriend);
                                 existnewfriend=api.findNewHF(id);
@@ -371,7 +447,6 @@ public class ODLCLI
                 healthFriendsMenu();
                 break;
             case "3":
-                Scanner sc=new Scanner(System.in);
                 boolean atRisk=true;
                 try {
                     atRisk=api.viewRiskHF(id);
@@ -383,12 +458,12 @@ public class ODLCLI
                 while(option.matches("y")&&atRisk)
                 {
                     System.out.println("\n\nSend message to health friend at risk ? (y/n) ");
-                    option=sc.nextLine().trim();
+                    option=in.nextLine().trim();
                     switch(option)
                     {
                         case "y":
                             System.out.println("Enter HealthFriend ID to message healthfriend: ");
-                            riskFriend=sc.nextLine().trim();
+                            riskFriend=in.nextLine().trim();
                             try {
                                 api.msgRiskHF(id,riskFriend);
                                 atRisk=api.viewRiskHF(id);
@@ -416,8 +491,6 @@ public class ODLCLI
     public void existingHFMenu(String selectedHF) 
     {
         System.out.println("Select an option");
-        Scanner in=new Scanner(System.in);
-
         System.out.println("1. View a list of the friend's active (unviewed) alerts");
         System.out.println("2. View observations of the friend");
         System.out.println("3. Back");
