@@ -275,7 +275,7 @@ public class DBAPI {
         int i=0;
         try
         {
-            rs = stmt.executeQuery("select COUNT(*) from Observations o,makes_observation m where o.oid=m.oid and m.pid='"+patientId+"'");  
+            rs = stmt.executeQuery("select * from Observations o,makes_observation m where o.oid=m.oid and m.pid='"+patientId+"'");  
 
             while (rs.next()) {
                 System.out.println(i+". " + rs.getString("type"));
