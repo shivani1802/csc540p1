@@ -41,18 +41,19 @@ public class DBAPI {
         System.out.println("Dropping all tables.");
         try
         {
-        	conn.setAutoCommit(false);
-          stmt.executeUpdate("drop table Makes_Observation");
-          stmt.executeUpdate("drop table Has_Illness");
-          stmt.executeUpdate("drop table Observations");
-          stmt.executeUpdate("drop table Threshold_check");
-          stmt.executeUpdate("drop table Alerts");
-          stmt.executeUpdate("drop table HAS_HF");
-          stmt.executeUpdate("drop table patient_info");
-          stmt.executeUpdate("drop table type_assoc_ill");
-          stmt.executeUpdate("drop table Observation_Type");
-          stmt.executeUpdate("drop table HP_INFO");
-          conn.commit();
+            conn.setAutoCommit(false);
+            stmt.executeUpdate("drop table HAS_HF");
+            stmt.executeUpdate("drop table Makes_Observation");
+            stmt.executeUpdate("drop table Observations");
+            stmt.executeUpdate("drop table Messages");
+            stmt.executeUpdate("drop table Threshold_check");
+            stmt.executeUpdate("drop table Has_Illness");
+            stmt.executeUpdate("drop table type_assoc_ill");
+            stmt.executeUpdate("drop table Illness");
+            stmt.executeUpdate("drop table Observation_Type");
+            stmt.executeUpdate("drop table HP_INFO");
+            stmt.executeUpdate("drop table patient_info");
+            conn.commit();
         }
         catch(Throwable err) {
        
@@ -77,21 +78,17 @@ public class DBAPI {
         System.out.println("Initializing tables with sample data.");
         try
         {
-            // stmt = conn.createStatement();
             stmt.executeUpdate("CREATE TABLE Patient_Info " +
                 "(Patient_NAME VARCHAR(32), Address varchar (100), Age integer,Sex varchar(6),Patient_Id varchar (10)," +
                 " Password varchar(16), PublicStatus char(2), primary key (Patient_Id))");
-            //System.out.println("inserted table Patient");
             stmt.executeUpdate("INSERT INTO Patient_Info " +
                 "VALUES ('Gary George', '2806 Conifer Drive, Raleigh, NC 27606', 25 , 'Male','ggeorge','geo123','Y')");
             stmt.executeUpdate("INSERT INTO Patient_Info " +
                 "VALUES ('Sheldon Cooper', '2808 Avent Ferry Road, Raleigh, NC 27616', 33 , 'Female','scooper','cooper123','Y')");
-            //System.out.println("inserted value Patient");
 
 
             stmt.executeUpdate("create table HP_INFO" +
                 "(name VARCHAR(32), id VARCHAR(32), password VARCHAR(16), clinic VARCHAR(32), PRIMARY KEY(id))");
-
             stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Altaf Hussain', 'ahussain', 'hussain123', 'Dayview')");
             stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Manu Joseph', 'mjoseph', 'joseph123', 'Dayview')");
             stmt.executeUpdate("INSERT INTO HP_Info VALUES ('Shane Lee', 'slee', 'lee123', 'Huntington')");
@@ -99,7 +96,6 @@ public class DBAPI {
 
             stmt.executeUpdate("create table Observation_Type"+
                 "(Type varchar (40), Category varchar(40), AdditionalInfo varchar (200), primary key (Type))");
-            //System.out.println("created table oBS");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                 "VALUES ('Temperature','Physiological','Amount in Fahrenheit')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
@@ -108,7 +104,7 @@ public class DBAPI {
                 "VALUES ('Weight','Physiological','Amount in Pounds')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                 "VALUES ('Oxygen Saturation','Physiological','the fraction of hemoglobin that is saturated by oxygen, e.g. 95% ?')");
-            //System.out.println("inserted table oBS");
+
 
             stmt.executeUpdate("CREATE TABLE Illness(Illness varchar (40), primary key(Illness))");
             stmt.executeUpdate("INSERT INTO Illness VALUES ('COPD')");
@@ -118,7 +114,8 @@ public class DBAPI {
             stmt.executeUpdate("INSERT INTO Illness VALUES ('Obesity')");
 
             stmt.executeUpdate("create table type_assoc_ill" +
-                "(Illness varchar (40), Type varchar(40), primary key (Illness, Type), foreign key (Type) references Observation_Type(Type))");
+                "(Illness varchar (40), Type varchar(40), primary key (Illness, Type), foreign key (Type) references Observation_Type(Type)," +
+                " foreign key (Illness) references Illness)");
             stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('HIV', 'Temperature')");
             stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('General', 'Diet')");
             stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('General', 'Weight')");
@@ -126,43 +123,44 @@ public class DBAPI {
 
 
             stmt.executeUpdate("create table Has_Illness"+
-                "(Patient_Id varchar(10), Illness varchar(20), Type varchar (40),  foreign key(Patient_Id) references Patient_Info(Patient_Id), " +
-                "foreign key (Illness, Type) references type_assoc_ill(Illness,Type))");
-            //System.out.println("created has illness");
-            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness,Type)" +
-                "VALUES ('ggeorge', 'HIV','Temperature')");
-            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness,Type)" +
-                "VALUES ('scooper', 'HIV','Temperature')");
-            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness,Type)" +
-                "VALUES ('scooper', 'COPD','Oxygen Saturation')");
-            //System.out.println(" inserted has illness");
+                "(Patient_Id varchar(10), Illness varchar(20), foreign key(Patient_Id) references Patient_Info(Patient_Id), " +
+                "foreign key (Illness) references Illness, primary key (Patient_Id, Illness))");
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                "VALUES ('ggeorge', 'HIV')");
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                "VALUES ('scooper', 'HIV')");
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                "VALUES ('scooper', 'COPD')");
+
 
             stmt.executeUpdate("create table Threshold_check" +
-              		 "(Type varchar(40), AdditionalInfo varchar(100),Threshold varchar(50))");
-            //System.out.println(" inserted alerts");
-            
-            stmt.executeUpdate("create table Observations" +
-                "(OId varchar(5), Type varchar(40), Date_of_observation varchar(20), time_of_observation varchar(20)," +
-                " AdditionalInfo varchar(100),value varchar(100),isactive char(5) default 'FALSE' check (isactive in ('TRUE','FALSE') )," + 
-                " primary key (OId), foreign key (Type) references Observation_Type(Type))");
-            
+                "(Type varchar(40), AdditionalInfo varchar(100),Threshold varchar(50))");
+
+
             stmt.executeUpdate("CREATE TABLE messages " +
                  "(from_pId varchar (20), to_friend varchar(20), on_date DATE, text varchar(100)," +
                  " foreign key (from_pID) references Patient_Info, foreign key (to_friend) references Patient_Info, " +
                 "primary key (from_pId, to_friend))" );
 
+
+            stmt.executeUpdate("create table Observations" +
+                "(OId varchar(5), Type varchar(40), Date_of_observation varchar(20), time_of_observation varchar(20)," +
+                " AdditionalInfo varchar(100),value varchar(100),isactive char(5) default 'FALSE' check (isactive in ('TRUE','FALSE') )," + 
+                " primary key (OId), foreign key (Type) references Observation_Type(Type))");
             stmt.executeUpdate("Insert into Observations (OId, Type, Date_of_observation,time_of_observation,AdditionalInfo)"+
                 "values ('O1', 'Diet','01-01-2011','18:12:02','What was consumed, amount that was consumed')");
+
 
             stmt.executeUpdate("create table Makes_Observation" +
             "(pId varchar(10), OId varchar(5), Date_of_record date, time_of_record varchar(20), foreign key (pId) references Patient_Info(Patient_Id), " +
                 "foreign key(OId) references Observations)");
-            //System.out.println("created table makesobs");
             stmt.executeUpdate("Insert into Makes_Observation (pId, OId, Date_of_record ,time_of_record)"+
                 "values ('ggeorge', 'O1',sysdate,'18:12:02')");
 
+
             stmt.executeUpdate("create table HAS_HF"+
                 "(hf_id varchar(20), patient_id varchar(10), on_date DATE, PRIMARY KEY(hf_id,patient_id), FOREIGN KEY(patient_id) REFERENCES PATIENT_INFO)");
+
         }
 
         catch(Throwable err) {
@@ -438,8 +436,6 @@ public class DBAPI {
     			+ "union "
     			+ "SELECT DISTINCT patient_name, p.patient_id FROM PATIENT_INFO p, HAS_HF h "
     			+ "WHERE h.hf_id='"+uname+"' AND h.patient_id=p.patient_id"; 
- ;
-    	
     	boolean hasHF=true;
     	Statement stmt = conn.createStatement();
     	
@@ -708,10 +704,17 @@ public class DBAPI {
     public ArrayList<String> getPatientsByObsType(String type) {
         ArrayList<String> names = new ArrayList<String>();
         try {
-            ResultSet rs_names = stmt.executeQuery("SELECT DISTINCT H.Patient_Id FROM Has_Illness H WHERE H.Illness IN " + 
-                "(SELECT T.Illness FROM type_assoc_ill T WHERE T.Type = '" + type + "')");
-            while(rs_names.next())
-                names.add(rs_names.getString("Patient_Id"));
+            ResultSet rs = stmt.executeQuery("SELECT Illness FROM type_assoc_ill WHERE Illness = 'General' AND type = '" + type + "'");
+            //check if obs type is associated with the general category
+            if (rs.next())
+                names = getPNames();
+            else {
+                rs = stmt.executeQuery("SELECT P.Patient_name FROM Patient_Info P WHERE P.Patient_Id IN (" +
+                    "SELECT DISTINCT H.Patient_Id FROM Has_Illness H WHERE H.Illness IN (" + 
+                        "SELECT T.Illness FROM type_assoc_ill T WHERE T.Type = '" + type + "'))");
+                while(rs.next())
+                    names.add(rs.getString("Patient_name"));
+            }
         }
         catch (SQLException e) {
         }
