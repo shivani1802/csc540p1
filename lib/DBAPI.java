@@ -66,10 +66,10 @@ public class DBAPI {
 				}
            // conn = null;
             System.out.println("Not dropped table" + err);
-            try {conn.setAutoCommit(true);} catch (SQLException e) {}
             return false;
+        } finally {
+            try {conn.setAutoCommit(true);} catch(SQLException e) {}
         }
-        try {conn.setAutoCommit(true);} catch (SQLException e) {}
         return true;
     }  
         //insert SQL to drop all related tables
