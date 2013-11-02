@@ -277,7 +277,8 @@ public class ODLCLI
             System.out.println(" 1.  Add a New Observation Type");
             System.out.println(" 2.  Add an Association Between Observation Type and Illness");
             System.out.println(" 3.  View Patients");
-            System.out.println(" 4.  Back (log out)");
+            System.out.println(" 4.  Assign a Patient an illness");
+            System.out.println(" 5.  Back (log out)");
             System.out.print("\nInput: ");
             String input = in.nextLine().trim();
             switch (input) {
@@ -291,6 +292,9 @@ public class ODLCLI
                     viewPatients();
                     break;
                 case "4":
+                    assignIllness();
+                    break;
+                case "5":
                     startMenu();
                     break;
                 default:
@@ -298,6 +302,25 @@ public class ODLCLI
                     healthProfMenu();
             }
         }
+    }
+
+    public void assignIllness() {
+        System.out.print("Enter Patient name: ");
+        String name = in.nextLine().trim();
+        System.out.print("Enter Illness to assign to patient: ");
+        String illness = in.nextLine().trim();
+        if(checkPName(name)) {
+            if(checkIllName(illness)) {
+                if(api.assignPatientIllness(name, illness))
+                    System.out.println("Illness assignment to patient successful (or already exists).");
+                else
+                    System.out.println("Illness assignment to patient failed.");
+            }
+            else
+            System.out.println("Invalid illness name");
+        }
+        else
+            System.out.println("Invalid patient name");
     }
 
     public void viewPatients() {
@@ -360,6 +383,10 @@ public class ODLCLI
 
     public boolean checkPName(String name) {
         return api.getPNames().contains(name);
+    }
+
+    public boolean checkIllName(String illness) {
+        return api.getIllNames().contains(illness);
     }
 
     public void displayPatientsByName() {

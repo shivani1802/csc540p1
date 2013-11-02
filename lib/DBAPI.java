@@ -66,8 +66,10 @@ public class DBAPI {
 				}
            // conn = null;
             System.out.println("Not dropped table" + err);
+            try {conn.setAutoCommit(true);} catch (SQLException e) {}
             return false;
         }
+        try {conn.setAutoCommit(true);} catch (SQLException e) {}
         return true;
     }  
         //insert SQL to drop all related tables
@@ -313,8 +315,6 @@ public class DBAPI {
             if(illness.equals("General")) {
                 stmt.executeQuery("DELETE FROM type_assoc_ill WHERE type = '" + type + "'");
                 stmt.executeQuery("INSERT INTO type_assoc_ill VALUES ('" + illness + "','" + type + "')");
-                System.out.println("after");
-                //must delete multiple duplicate resulting general illness assoc's (going from specific to general)
             }
             else {
                 rs = stmt.executeQuery("SELECT * FROM type_assoc_ill AI WHERE AI.type = '" + type + "' AND AI.illness = 'General'");
@@ -688,7 +688,24 @@ public class DBAPI {
    	 }
    	return isValid;
     }
-    
+
+    public boolean assignPatientIllness(String name, String illness) {
+        try {
+            ResultSet rs = stmt.executeQuery("SELECT Patient_Id FROM Patient_Info WHERE Patient_Name = '" + name + "'");
+            rs.next();
+            String id = rs.getString("Patient_Id");
+            rs = stmt.executeQuery("SELECT * FROM Has_Illness WHERE Patient_Id = '" + id + "' AND illness = '" + illness + "'");
+            if(rs.next())
+                return true;
+            else
+                stmt.executeUpdate("INSERT INTO Has_Illness VALUES ('" + id + "','" + illness + "')");
+        }
+        catch (SQLException e) {
+            return false;
+        }
+        return true;
+    }
+
     public ArrayList<String> getObsTypes() {
         ArrayList<String> types = new ArrayList<String>();
         try {
@@ -735,6 +752,18 @@ public class DBAPI {
             ResultSet rs_names = stmt.executeQuery("SELECT Patient_name FROM Patient_Info");
             while(rs_names.next())
                 names.add(rs_names.getString("Patient_name"));
+        }
+        catch (SQLException e) {
+        }
+        return names;
+    }
+
+    public ArrayList<String> getIllNames() {
+        ArrayList<String> names = new ArrayList<String>();
+        try {
+            ResultSet rs_names = stmt.executeQuery("SELECT Illness FROM Illness");
+            while(rs_names.next())
+                names.add(rs_names.getString("Illness"));
         }
         catch (SQLException e) {
         }
