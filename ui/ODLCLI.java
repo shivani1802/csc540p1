@@ -164,7 +164,7 @@ public class ODLCLI
             String input = in.nextLine().trim();
             switch (input) {
                 case "1":
-                    recordObservation();
+                    recordObservation(id);
                     break;
                 case "2":
                     viewObservations(id);
@@ -189,11 +189,11 @@ public class ODLCLI
             }
         }
     }
-    public void recordObservation()
+    public void recordObservation(String id)
     {
         String obsType,obsDate,obsTime;
         System.out.println("Enter observations for the following available types based on your Illness :");
-        api.observationMenu("ggeorge");
+        api.observationMenu(id);
         System.out.print("Enter your type of Observation : ");
         obsType= in.nextLine().trim();
         System.out.println(obsType +":\nEnter :");
@@ -201,7 +201,7 @@ public class ODLCLI
         obsDate= in.nextLine().trim();
         System.out.println("Enter Time of Observation in HH:mm:ss format :");
         obsTime= in.nextLine().trim();
-        api.enterObservation("ggeorge",obsType,obsDate,obsTime);
+        api.enterObservation(id,obsType,obsDate,obsTime);
     }
 
     public void viewObservations(String patientId)

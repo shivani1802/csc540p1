@@ -87,6 +87,17 @@ public class DBAPI {
                 "VALUES ('Gary George', '2806 Conifer Drive, Raleigh, NC 27606', 25 , 'Male','ggeorge','geo123','Y')");
             stmt.executeUpdate("INSERT INTO Patient_Info " +
                 "VALUES ('Sheldon Cooper', '2808 Avent Ferry Road, Raleigh, NC 27616', 33 , 'Female','scooper','cooper123','Y')");
+            stmt.executeUpdate("INSERT INTO Patient_Info " +
+                    "VALUES ('Adnan Kazi', '1234 Capability Drive, Raleigh, NC 27655', 31 , 'Female','akazi','kazi123','Y')");
+            stmt.executeUpdate("INSERT INTO Patient_Info " +
+                    "VALUES ('Neha Shetty', '440 Sullivan Drive, Chapel Hill, NC 27517', 40 , 'Female','nshetty','shetty123','Y')");
+            stmt.executeUpdate("INSERT INTO Patient_Info " +
+                    "VALUES ('Michael Watson', '2222 Gorman Street, Raleigh, NC 27678', 47 , 'Male','mwatson','watson123','Y')");
+            stmt.executeUpdate("INSERT INTO Patient_Info " +
+                    "VALUES ('Tom Kerr', '1430 Collegeview Ave,Durham, NC 27701', 40 , 'Male','tkerr','tkerr123','Y')");
+            stmt.executeUpdate("INSERT INTO Patient_Info " +
+                    "VALUES ('Maya Tran', '100 Brown Circle,Chapel Hill, NC 27516', 37 , 'Female','mtran','tran123','Y')");
+                    
 
 
             stmt.executeUpdate("create table HP_INFO" +
@@ -105,8 +116,20 @@ public class DBAPI {
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
                 "VALUES ('Weight','Physiological','Amount in Pounds')");
             stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
-                "VALUES ('Oxygen Saturation','Physiological','the fraction of hemoglobin that is saturated by oxygen, e.g. 95% ?')");
-
+                "VALUES ('Oxygen Saturation','Physiological','the fraction of hemoglobin that is saturated by oxygen e.g. 95% ?')");
+            stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                    "VALUES ('Exersice','Behavioral','What kind: walking/cycling/jogging, Duration: number of minutes ')");
+            stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                    "VALUES ('Mood','Psychological','One of the values: happy/sad/neutral')");
+            stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                    "VALUES ('Exercise Tolerance','Physiological','Number of steps before exhaustion')");
+            stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                    "VALUES ('Pain','Physiological','Scale [1 – 10]')");
+            stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                    "VALUES ('Contraction','Physiological','Frequency - # per hour')");
+            stmt.executeUpdate("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
+                    "VALUES ('Blood Pressure','Physiological','Systolic,Diastolic')");
+               
 
             stmt.executeUpdate("CREATE TABLE Illness(Illness varchar (40), primary key(Illness))");
             stmt.executeUpdate("INSERT INTO Illness VALUES ('COPD')");
@@ -118,10 +141,19 @@ public class DBAPI {
             stmt.executeUpdate("create table type_assoc_ill" +
                 "(Illness varchar (40), Type varchar(40), primary key (Illness, Type), foreign key (Type) references Observation_Type(Type)," +
                 " foreign key (Illness) references Illness)");
-            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('HIV', 'Temperature')");
             stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('General', 'Diet')");
             stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('General', 'Weight')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('General', 'Mood')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('General', 'Exercise')");
             stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('COPD', 'Oxygen Saturation')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('COPD', 'Exercise Tolerance')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('HIV', 'Temperature')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('High Risk Pregnancy', 'Pain')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('High Risk Pregnancy', 'Contraction')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('High Risk Pregnancy', 'Blood Pressure')");
+            stmt.executeUpdate("INSERT INTO type_assoc_ill VALUES ('Obesity', 'Blood Pressure')");
+            
+            
 
 
             stmt.executeUpdate("create table Has_Illness"+
@@ -133,10 +165,40 @@ public class DBAPI {
                 "VALUES ('scooper', 'HIV')");
             stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
                 "VALUES ('scooper', 'COPD')");
-
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                    "VALUES ('akazi', 'Obesity')");
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                    "VALUES ('akazi', 'High Risk Pregnancy')");
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                    "VALUES ('nshetty', 'Obesity')");
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                    "VALUES ('nshetty', 'High Risk Pregnancy')");
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                    "VALUES ('mwatson', 'COPD')");
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                    "VALUES ('tkerr', 'COPD')");
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                    "VALUES ('tkerr', 'Obesity')");
+            stmt.executeUpdate("INSERT INTO Has_Illness (Patient_Id, Illness)" +
+                    "VALUES ('mtran', 'High Risk Pregnancy')");
+            
+            
 
             stmt.executeUpdate("create table Threshold_check" +
-                "(Type varchar(40), AdditionalInfo varchar(100),Threshold varchar(50))");
+                    "(Type varchar(40), AdditionalInfo varchar(100),Threshold varchar(50),"
+                    + "primary key (Type,AdditionalInfo),foreign key(Type) references Observation_type(type))");
+            stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
+            		+ "VALUES ('Temperature', 'Amount in Fahrenheit', '>102')");
+            stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
+            		+ "VALUES ('Oxygen Saturation', 'the fraction of hemoglobin that is saturated by oxygen e.g. 95%', '<88')");
+            stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
+            		+ "VALUES ('Pain', 'Scale [1 – 10]', '>7')");
+            stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
+            		+ "VALUES ('Contraction', 'Frequency - # per hour', '>4')");
+            stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
+            		+ "VALUES ('Blood Pressure', 'Systolic', '>140')");
+            stmt.executeUpdate("INSERT INTO Threshold_check (Type, AdditionalInfo, Threshold) "
+            		+ "VALUES ('Blood Pressure', 'Diastolic', '>90')");
 
 
             stmt.executeUpdate("CREATE TABLE messages " +
@@ -154,35 +216,40 @@ public class DBAPI {
 
 
             stmt.executeUpdate("create table Makes_Observation" +
-            "(pId varchar(10), OId varchar(5), Date_of_record date, time_of_record varchar(20), foreign key (pId) references Patient_Info(Patient_Id), " +
-                "foreign key(OId) references Observations)");
-            stmt.executeUpdate("Insert into Makes_Observation (pId, OId, Date_of_record ,time_of_record)"+
-                "values ('ggeorge', 'O1',sysdate,'18:12:02')");
+                    "(pId varchar(10), OId varchar(5), datetime_of_record timestamp, foreign key (pId) references Patient_Info(Patient_Id), " +
+                        "foreign key(OId) references Observations)");
+    
 
 
             stmt.executeUpdate("create table HAS_HF"+
                 "(hf_id varchar(20), patient_id varchar(10), on_date DATE, PRIMARY KEY(hf_id,patient_id), FOREIGN KEY(patient_id) REFERENCES PATIENT_INFO)");
-
+            stmt.executeUpdate("Insert into HAS_HF(hf_id, patient_id, on_date) "
+            		+ "Values('tkerr', 'akazi', TO_DATE('04-01-2013'))");
+            stmt.executeUpdate("Insert into HAS_HF(hf_id, patient_id, on_date) "
+            		+ "Values('tkerr', 'mwatson', TO_DATE('03-04-2011'))");
+            stmt.executeUpdate("Insert into HAS_HF(hf_id, patient_id, on_date) "
+            		+ "Values('scooper', 'ggeorge', TO_DATE('10-12-2012'))");
+            stmt.executeUpdate("Insert into HAS_HF(hf_id, patient_id, on_date) "
+            		+ "Values('scooper', 'mwatson', TO_DATE('01-02-2013'))");
+            stmt.executeUpdate("Insert into HAS_HF(hf_id, patient_id, on_date) "
+            		+ "Values('scooper', 'tkerr', TO_DATE('05-04-2011'))");
         }
 
         catch(Throwable err) {
-            conn = null;
+           // conn = null;
             System.out.println("Error occurred while intializing tables.\n" + err);
         }
         return true;
     }
-    
     public void observationMenu(String patientId)
     {
         int i=1;
-                //Scanner sc= new Scanner(System.in);
+                Scanner sc= new Scanner(System.in);
 
         try {
             rs = stmt.executeQuery("select distinct type from type_assoc_ill where Illness ='General' or Illness in " +
                 "( SELECT Illness FROM Has_Illness where Patient_Id= '"+ patientId +"')");
-            //System.out.println(patientId);
-            //String typeObv1 = rs.getString("type");
-            //System.out.println(i+". " + typeObv1);
+        
             while (rs.next()) {
                 String typeObv = rs.getString("type");
                 System.out.println(i+". " + typeObv);
@@ -215,16 +282,16 @@ public class DBAPI {
     	return;
     }
     
-    System.out.println("Hello");
-    stmt.executeQuery("create or replace TRIGGER MakesObservationInsert"+    //This trigger working now finally
-			  " After Insert on Observations"+
-			" REFERENCING NEW AS newrow"+
-			  " for each row"+
-			  " insert into Makes_Observation (pId, OId, Date_of_record ,time_of_record)"+
-			 " values ('"+patientId+"',:newrow.OId, sysdate,'18:12:02')");
-    	
+   // System.out.println("Hello");
+    stmt.executeQuery("create or replace TRIGGER MakesObservationInsert\n"+    //This trigger working now finally
+			  " After Insert on Observations\n"+
+			" REFERENCING NEW AS newrow\n"+
+			  "for each row\n"+
+			  " insert into Makes_Observation (pId, OId, datetime_of_record)\n"+
+			 " values ('"+patientId+"',:newrow.OId, CURRENT_TIMESTAMP)\n");
+    
     count = stmt.executeQuery("select count(*) as noOfRows from Observations");
-	  System.out.println("Before parsing : "+counter);
+	//  System.out.println("Before parsing : "+counter);
 	  while (count.next()) {
 	   counter= Integer.parseInt(count.getString("noOfRows"));
 	  }
@@ -246,24 +313,12 @@ public class DBAPI {
 		  counter++;
 	  }
 	}
-	System.out.println("Before : "+counter);
-	 
-	//  System.out.println(counter);
-	 
-	  
-	  
-	  
-	  System.out.println(patientId);
+	
 	  
 	    // do we need a trigger instead of insert i makes here ??
 	  
 	 //If no trigger how to enter corresponding oid..that would be an issue 
 	  
-	//  stmt.executeUpdate("Insert into Makes_Observation (pId, OId, Date_of_record ,time_of_record)"+
-        	//	"values ('"+patientId+"','O"+counter+"', sysdate,'18:12:02')"); // here date and time are supposed to be system date and time as i trigger below but for the time being we have this
-	 System.out.println("inserted n makes");
-	  
-	
 	
 	}
 	  catch(Throwable err) {
@@ -273,27 +328,39 @@ public class DBAPI {
           }
 	 }
 
-    public void displayObservations(String patientId) {
-        int i=0;
-        try
-        {
-            rs = stmt.executeQuery("select * from Observations o,makes_observation m where o.oid=m.oid and m.pid='"+patientId+"'");  
+	 public void displayObservations(String patientId) {
+	        int i=0;String typeOfObservation;
+	        Scanner sc= new Scanner(System.in);
+	        try
+	        {
+	        	rs = stmt.executeQuery("select distinct type from observations o,makes_observation m where o.OId=m.OId and m.pId= '"+ patientId +"'");
+	        	 while (rs.next()) {
+	        		 String typeObv = rs.getString("type");
+	                 System.out.println(typeObv);
+	                 i++;
+	             }
+	        	 
+	        	 System.out.println("Enter the Type for which you want to view the observations");
+	        	 typeOfObservation= sc.next();
+	        	 
+	        	rs = stmt.executeQuery("select * from Observations o,makes_observation m where o.oid=m.oid and o.type='"+typeOfObservation+"' and m.pid='"+patientId+"'");  
 
-            while (rs.next()) {
-                System.out.println(i+". " + rs.getString("type"));
-                System.out.println(rs.getString("Oid"));
-                System.out.println(rs.getString("date_of_observation"));
-                System.out.println(rs.getString("time_of_observation"));
-                System.out.println(rs.getString("AdditionalInfo"));
-                i++;
-            }
-            System.out.println("End of Observation List.");
-        }
-        catch(Throwable err) {
-            conn = null;
-            System.out.println("Query not executed.\n" + err);
-            }
-    }
+	            while (rs.next()) {
+	                System.out.println("Selected Type:  " + rs.getString("type"));
+	                System.out.println(rs.getString("Oid"));
+	                System.out.println(rs.getString("date_of_observation"));
+	                System.out.println(rs.getString("time_of_observation"));
+	                System.out.println(rs.getString("AdditionalInfo"));
+	                i++;
+	            }
+	            System.out.println("End of Observation List.");
+	        }
+	        catch(Throwable err) {
+	            conn = null;
+	            System.out.println("Query not executed.\n" + err);
+	            }
+	    }
+
 
     public boolean addAssoc(String type, String illness) {
         //invalid illness type specified
@@ -335,9 +402,10 @@ public class DBAPI {
         return true;
     }
 
-    public boolean addNewType(String type,String category,String addtionalInformation, String illness)
+    public boolean addNewType(String type,String category,String additionalInformation, String illness)
     {
     	int j=0;
+    	Scanner sc=new Scanner(System.in);
         boolean flag=true; //a more descriptive name would be good here
         try
         {   //To check if the type already exists
@@ -350,25 +418,54 @@ public class DBAPI {
             //here first check if that particular type already exists
             if(flag)
             {
+            	 // System.out.println("length =");
                 rs = stmt.executeQuery("INSERT INTO Observation_Type (Type, Category, AdditionalInfo)" +
-                    "VALUES ('" + type + "','" + category + "','" + addtionalInformation + "')" );
-                rs = stmt.executeQuery("INSERT INTO type_assoc_ill VALUES ('" + illness + "','" + type + "')");
-                String [] data= addtionalInformation.split(",");
-  			  
+                    "VALUES ('" + type + "','" + category + "','" + additionalInformation + "')" );
+               rs = stmt.executeQuery("INSERT INTO type_assoc_ill VALUES ('" + illness + "','" + type + "')");
+                String [] data= additionalInformation.split(",");
+               // System.out.println("additional info"+additionalInformation);
+              //  System.out.println("length ="+data.length);
   			  while(j!=data.length)
   			  {
-  				//  System.out.println("Enter "+ data[j]);
+  			    System.out.println("Enter Threshold for :"+ data[j]);
+  			  String thresholdValue = sc.next();
   				  stmt.executeQuery("INSERT INTO Threshold_check (type,AdditionalInfo,Threshold)"+
-  			        		"values ('"+type+"','"+data[j]+"',null)");   	//This insertion is for patients , in case of physician you will have to modify Threshold according to the input
+  			        		"values ('"+type+"','"+data[j]+"','"+thresholdValue+"')");   //This insertion is for patients , in case of physician you will have to modify Threshold according to the input
+  				 //call the function which creates trigger for each type
+  				 System.out.println("inserted in threshold");
+  				  createTrigger(data[j]);
   				  j++;			  
   			  }
             }
         }
         catch(Throwable err) {
             conn = null;
+            System .out.println("Error  "+ err);
             flag = false;
         }
         return flag;
+    }
+    
+    public void createTrigger(String type)
+    {
+    	 System.out.println("entered here");
+    	
+		try {
+			stmt.executeQuery("create or replace TRIGGER try\n"+   //This trigger working now finally
+				  " after insert on Observations\n"+
+				" REFERENCING NEW AS newrow\n"+
+				  " for each row\n"+
+				"declare thresh varchar(50)\n"+
+				  "select t.threshold into thresh from threshold_check t, observations o where :newrow.additionalInfo=t.additionalInfo\n"+
+				  "if :newrow.threshvalue thresh then\n"+
+				  "update observations set isactive ='true' where OId=:newrow.OId\n"+
+				  "End if\n");
+			// System.out.println("enterede");
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("error "+ e);
+		}
     }
     public boolean close(Connection conn) {
         if(conn != null) {
