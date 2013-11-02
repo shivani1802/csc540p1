@@ -173,10 +173,10 @@ public class DBAPI {
     public void observationMenu(String patientId)
     {
         int i=1;
-                Scanner sc= new Scanner(System.in);
+                //Scanner sc= new Scanner(System.in);
 
         try {
-            rs = stmt.executeQuery("select distinct type from Observation_Type where Illness ='General' or Illness in " +
+            rs = stmt.executeQuery("select distinct type from type_assoc_ill where Illness ='General' or Illness in " +
                 "( SELECT Illness FROM Has_Illness where Patient_Id= '"+ patientId +"')");
             //System.out.println(patientId);
             //String typeObv1 = rs.getString("type");
@@ -201,7 +201,7 @@ public class DBAPI {
   		Scanner sc= new Scanner(System.in);
     try  
    {
-    	rs = stmt.executeQuery("select distinct type from Observation_Type where Illness ='General' or Illness in ( SELECT Illness FROM Has_Illness where Patient_Id= '"+ patientId +"')");
+    	rs = stmt.executeQuery("select distinct type from type_assoc_ill where Illness ='General' or Illness in ( SELECT Illness FROM Has_Illness where Patient_Id= '"+ patientId +"')");
     	while(rs.next()){
     		if((rs.getString("type").equals(Obs_Type)))
     			flag=true;
@@ -721,8 +721,11 @@ public class DBAPI {
         return names;
     }
 
+    /**
+     * Returns patient Info + observations
+     */
     public ArrayList<String> getPatientsByName(String name) {
-        //TODO
+        
         return null;
     }
 
